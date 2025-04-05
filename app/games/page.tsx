@@ -1,0 +1,67 @@
+import Link from 'next/link';
+import { Card, CardContent } from '@/components/ui/card';
+import { Gamepad2, Gem, Palette } from 'lucide-react';
+
+const games = [
+  { 
+    name: 'Plinko', 
+    description: 'Drop balls and win big prizes',
+    icon: <Gamepad2 size={48} />, 
+    color: 'from-blue-500 to-indigo-600',
+    link: '/games/plinko' 
+  },
+  { 
+    name: 'Mines', 
+    description: 'Find gems, avoid bombs',
+    icon: <Gem size={48} />, 
+    color: 'from-emerald-500 to-green-600',
+    link: '/games/mines' 
+  },
+  { 
+    name: 'Color Change', 
+    description: 'Match colors to win rewards',
+    icon: <Palette size={48} />, 
+    color: 'from-purple-500 to-pink-600',
+    link: '/games/colorCode' 
+  },
+];
+
+export default function GamesPage() {
+  return (
+    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-b from-gray-900 to-black text-white p-6">
+      <div className="max-w-5xl w-full">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">
+            Choose Your Game
+          </h1>
+          <p className="text-gray-400 text-lg max-w-xl mx-auto">
+            Select from our collection of exciting games and test your luck
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {games.map((game) => (
+            <Link key={game.name} href={game.link} className="block">
+              <Card className="h-full bg-gray-800/50 border border-gray-700 rounded-2xl shadow-lg overflow-hidden backdrop-blur-sm hover:shadow-xl transition duration-300 group">
+                <div className={`bg-gradient-to-br ${game.color} p-8 flex items-center justify-center`}>
+                  <div className="text-white transform group-hover:scale-110 transition duration-300">
+                    {game.icon}
+                  </div>
+                </div>
+                <CardContent className="p-6">
+                  <h2 className="text-xl font-bold mb-2">{game.name}</h2>
+                  <p className="text-gray-400">{game.description}</p>
+                </CardContent>
+                <div className="px-6 pb-6">
+                  <div className="bg-gray-700/50 text-center py-2 rounded-lg group-hover:bg-white/10 transition duration-300">
+                    Play Now
+                  </div>
+                </div>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
