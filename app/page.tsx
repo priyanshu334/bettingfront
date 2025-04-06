@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Sparkles, Trophy, Gift, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
 
 export default function LandingPage() {
   return (
@@ -32,13 +33,19 @@ export default function LandingPage() {
         
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
+          <Link href="/cricket">
           <Button className="text-lg px-8 py-6 rounded-xl shadow-xl bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 hover:to-amber-700 transition border-0 font-medium group">
             🏏 Play Today's Match
             <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Button>
-          <Button className="text-lg px-8 py-6 rounded-xl shadow-lg bg-white/10 border-2 border-white/50 text-white hover:bg-white/20 transition font-medium">
+          </Link>
+         
+         <Link href="/games">
+         <Button className="text-lg px-8 py-6 rounded-xl shadow-lg bg-white/10 border-2 border-white/50 text-white hover:bg-white/20 transition font-medium">
             🎮 Play Games
           </Button>
+         </Link>
+        
         </div>
         
         {/* Features */}
