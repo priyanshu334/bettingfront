@@ -193,35 +193,35 @@ export default function MatchDetails() {
   });
 
   return (
-    <div className="container mx-auto p-4 max-w-4xl">
+    <div className="container mx-auto px-2 sm:px-4 py-4 max-w-6xl">
       {/* Match Header Card */}
       <Card className="mb-6 overflow-hidden shadow-lg border-t-4 border-t-blue-600">
         <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 pb-2">
-          <div className="flex flex-wrap justify-between items-center">
-            <div>
-              <CardTitle className="text-2xl font-bold text-slate-800">{match.match}</CardTitle>
-              {match.venue && <p className="text-sm text-slate-500 mt-1">{match.venue}</p>}
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+            <div className="flex-1 min-w-0">
+              <CardTitle className="text-xl md:text-2xl font-bold text-slate-800 truncate">{match.match}</CardTitle>
+              {match.venue && <p className="text-xs sm:text-sm text-slate-500 mt-1 truncate">{match.venue}</p>}
             </div>
             {match.date && (
-              <Badge variant="outline" className="text-sm font-medium">
+              <Badge variant="outline" className="text-xs sm:text-sm font-medium whitespace-nowrap">
                 {match.date}
               </Badge>
             )}
           </div>
         </CardHeader>
-        <CardContent className="p-4">
-          <div className="flex justify-between items-center">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <CardContent className="p-3 sm:p-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
               {match.teams.map((team, idx) => (
                 <div key={team} className="flex items-center">
                   <div className={`w-3 h-3 rounded-full ${teamColors[team] || 'bg-gray-500'} mr-2`}></div>
-                  <span className="font-medium">{team}</span>
+                  <span className="font-medium text-sm sm:text-base">{team}</span>
                   {idx === 0 && <span className="hidden sm:inline mx-2 text-gray-400">vs</span>}
                 </div>
               ))}
             </div>
-            <div className="bg-gray-100 px-4 py-2 rounded-lg">
-              <span className="font-bold text-lg">{match.score}</span>
+            <div className="bg-gray-100 px-3 py-1 sm:px-4 sm:py-2 rounded-lg w-full sm:w-auto text-center">
+              <span className="font-bold text-sm sm:text-lg whitespace-nowrap">{match.score}</span>
             </div>
           </div>
         </CardContent>
@@ -229,17 +229,17 @@ export default function MatchDetails() {
 
       {/* Tabs for different betting options */}
       <Tabs defaultValue="general" className="w-full">
-        <TabsList className="grid grid-cols-6 mb-6">
-          <TabsTrigger value="general">General</TabsTrigger>
-          <TabsTrigger value="runs">Match Runs</TabsTrigger>
-          <TabsTrigger value="player-runs">Player Runs</TabsTrigger>
-          <TabsTrigger value="wickets">Wickets</TabsTrigger>
-          <TabsTrigger value="boundaries">Boundaries</TabsTrigger>
-          <TabsTrigger value="bowler">Bowler Stats</TabsTrigger>
+        <TabsList className="grid grid-cols-3 sm:grid-cols-6 mb-4 sm:mb-6 gap-1 sm:gap-2">
+          <TabsTrigger value="general" className="text-xs sm:text-sm p-1 sm:p-2">General</TabsTrigger>
+          <TabsTrigger value="runs" className="text-xs sm:text-sm p-1 sm:p-2">Match Runs</TabsTrigger>
+          <TabsTrigger value="player-runs" className="text-xs sm:text-sm p-1 sm:p-2">Player Runs</TabsTrigger>
+          <TabsTrigger value="wickets" className="text-xs sm:text-sm p-1 sm:p-2">Wickets</TabsTrigger>
+          <TabsTrigger value="boundaries" className="text-xs sm:text-sm p-1 sm:p-2">Boundaries</TabsTrigger>
+          <TabsTrigger value="bowler" className="text-xs sm:text-sm p-1 sm:p-2">Bowler Stats</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general" className="mt-0">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
             {adaptedBettingData.map((item, index) => (
               <MatchCard
                 key={index}
