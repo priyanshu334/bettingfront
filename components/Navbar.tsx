@@ -147,7 +147,7 @@ const Navbar: React.FC = () => {
                 </svg>
               </button>
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white bg-opacity-95 backdrop-blur-sm text-black rounded-lg shadow-xl z-50 overflow-hidden border border-gray-200">
+                <div className="absolute right-0 mt-2 w-48 bg-white bg-opacity-95 backdrop-blur-sm text-black rounded-lg shadow-xl z-100 overflow-hidden border border-gray-200">
                   <Link 
                     href="/accounts" 
                     className="block px-4 py-2 hover:bg-gray-200 transition-colors"

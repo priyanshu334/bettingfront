@@ -52,11 +52,11 @@ const LoginPage = () => {
           <div className="w-20 h-20 bg-orange-100 rounded-full mb-4 flex items-center justify-center shadow-md">
             <span className="text-3xl text-orange-600">SE</span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold text-orange-700">Saffron Exch</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-orange-700">Samrat Online booking</h1>
         </div>
 
         <h2 className="text-lg font-bold text-center mb-6 flex items-center justify-center gap-2">
-          <span className="text-xl">🔑</span> Login to your account
+          <span className="text-xl"></span> Login to your account
         </h2>
 
         <form onSubmit={handleLogin} className="space-y-5">

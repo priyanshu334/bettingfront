@@ -222,7 +222,7 @@ const Plinko = () => {
       setTimeout(() => {
         setSlotIndex(finalSlot);
         setBalance(prev => prev - bet + currentWinnings);
-        setMessage(`Ball landed on x${CONFIG.slots[finalSlot]}. You won $${currentWinnings.toFixed(2)}!`);
+        setMessage(`Ball landed on x${CONFIG.slots[finalSlot]}. You won ₹${currentWinnings.toFixed(2)}!`);
         setGameState("finished");
       }, CONFIG.animationDuration * 1000);
     }, 50);
@@ -255,13 +255,13 @@ const Plinko = () => {
       <div className="w-full flex flex-wrap justify-between items-center mb-6 p-5 bg-blue-950/80 rounded-xl shadow-lg backdrop-blur-sm border border-blue-800">
         <div className="flex items-center text-lg text-white mb-2 sm:mb-0">
           <span className="font-semibold mr-2">Balance:</span>
-          <span className="font-mono text-green-400 font-bold">${balance.toFixed(2)}</span>
+          <span className="font-mono text-green-400 font-bold">₹{balance.toFixed(2)}</span>
         </div>
         
         {winnings > 0 && gameState === "finished" && (
           <div className="flex items-center text-lg text-white">
             <span className="font-semibold mr-2">Won:</span>
-            <span className="font-mono text-yellow-400 font-bold">${winnings.toFixed(2)}</span>
+            <span className="font-mono text-yellow-400 font-bold">₹{winnings.toFixed(2)}</span>
           </div>
         )}
       </div>
@@ -271,7 +271,7 @@ const Plinko = () => {
         <div className="flex items-center text-white">
           <label className="mr-3 font-medium">Bet Amount:</label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-300">$</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-300">₹</span>
             <input
               type="number"
               className="pl-8 pr-3 py-2 w-28 border border-blue-700 bg-blue-950/70 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"

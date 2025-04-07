@@ -71,7 +71,7 @@ const MinesGame: React.FC = () => {
   
   const cashOut = (): void => {
     if (!gameStarted) return;
-    setCashoutMessage(`Congratulations! You cashed out $${reward.toFixed(2)}!`);
+    setCashoutMessage(`Congratulations! You cashed out ₹${reward.toFixed(2)}!`);
     setGameOver(true);
   };
 
@@ -106,7 +106,7 @@ const MinesGame: React.FC = () => {
         {!gameStarted ? (
           <div className="mb-6 space-y-4">
             <div className="space-y-2">
-              <label className="text-sm text-gray-400">Enter Bet Amount</label>
+              <label className="text-sm text-gray-400">Enter Bet Amount (₹)</label>
               <Input
                 type="number"
                 value={betAmount}
@@ -131,7 +131,7 @@ const MinesGame: React.FC = () => {
               </div>
               <div className="flex flex-col">
                 <span className="text-sm text-gray-400">Potential Reward</span>
-                <span className="text-2xl font-bold text-green-400">${reward.toFixed(2)}</span>
+                <span className="text-2xl font-bold text-green-400">₹{reward.toFixed(2)}</span>
               </div>
             </div>
             
@@ -176,7 +176,7 @@ const MinesGame: React.FC = () => {
       
       <div className="mt-6 text-sm text-gray-400 text-center max-w-md">
         <p>Click tiles to reveal diamonds (💎) and increase your multiplier. Avoid bombs (💣) or you'll lose your bet!</p>
-        <p className="mt-2">Current bet: ${betAmount || "0.00"}</p>
+        <p className="mt-2">Current bet: ₹{betAmount || "0.00"}</p>
       </div>
     </div>
   );
