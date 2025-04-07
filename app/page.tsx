@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-indigo-900 via-blue-900 to-purple-900 text-white px-4 sm:px-6 md:px-8 py-16 overflow-hidden relative">
+    <main className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-orange-600 via-orange-600 to-orange-600 text-white px-4 sm:px-6 md:px-8 py-16 overflow-hidden relative">
       {/* Background blobs */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute w-64 h-64 rounded-full bg-yellow-500/20 blur-3xl -top-20 -left-20"></div>

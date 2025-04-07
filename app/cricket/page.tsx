@@ -54,7 +54,7 @@ export default function IPLMatches() {
   };
 
   return (
-    <div className="p-6 w-full bg-gray-900 min-h-screen">
+    <div className="p-6 w-full bg-gradient-to-br from-orange-600 via-orange-600 to-orange-600 min-h-screen">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-center mb-8">
           <MdSportsCricket className="text-4xl text-yellow-400 mr-3" />

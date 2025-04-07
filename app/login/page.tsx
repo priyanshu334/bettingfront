@@ -127,7 +127,7 @@ const LoginPage = () => {
 
         <div className="flex items-center justify-center border border-gray-300 rounded-lg p-3 hover:border-orange-400 transition-all cursor-pointer">
           <span className="text-orange-600 mr-2">📞</span>
-          <span className="text-gray-800 font-medium">+91-1234589623</span>
+          <span className="text-gray-800 font-medium">+91-8602966827</span>
         </div>
 
         <div className="mt-6 text-center text-gray-500 text-sm">

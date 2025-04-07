@@ -193,7 +193,7 @@ export default function MatchDetails() {
   });
 
   return (
-    <div className="container mx-auto px-2 sm:px-4 py-4 max-w-6xl">
+    <div className="container mx-auto px-2 sm:px-4 py-4 max-w-6xl ">
       {/* Match Header Card */}
       <Card className="mb-6 overflow-hidden shadow-lg border-t-4 border-t-blue-600">
         <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 pb-2">
