@@ -39,7 +39,7 @@ export default function GamesPage() {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-white sm:gap-8">
           {games.map((game) => (
             <Link key={game.name} href={game.link} className="block">
               <Card className="h-full bg-gray-800/50 border border-gray-700 rounded-2xl shadow-md hover:shadow-xl transition duration-300 overflow-hidden backdrop-blur-sm group">
