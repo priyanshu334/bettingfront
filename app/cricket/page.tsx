@@ -27,7 +27,7 @@ export default function IPLMatches() {
   const router = useRouter();
   
   // Function to get team colors for card styling
-  const getTeamColors = (matchTitle) => {
+  const getTeamColors = (matchTitle:any) => {
     if (matchTitle.includes("Mumbai Indians")) return "from-blue-800 to-blue-900";
     if (matchTitle.includes("Chennai Super Kings")) return "from-yellow-600 to-yellow-700";
     if (matchTitle.includes("Royal Challengers")) return "from-red-700 to-red-900";
@@ -42,7 +42,7 @@ export default function IPLMatches() {
   };
   
   // Function to extract team names for display
-  const formatMatchTitle = (matchTitle) => {
+  const formatMatchTitle = (matchTitle:any) => {
     const teams = matchTitle.split(" vs. ");
     return (
       <div className="flex flex-col text-center sm:text-left">
