@@ -28,7 +28,7 @@ const games = [
 
 export default function GamesPage() {
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-start bg-black bg-gradient-to-b from-gray-900 to-black text-white px-4 sm:px-6 md:px-8 py-12">
+    <div className="min-h-screen w-full flex flex-col items-center justify-start  text-white px-4 sm:px-6 md:px-8 py-12">
       <div className="max-w-6xl w-full">
         <div className="text-center mb-10 sm:mb-14">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">
@@ -42,7 +42,7 @@ export default function GamesPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-white sm:gap-8">
           {games.map((game) => (
             <Link key={game.name} href={game.link} className="block">
-              <Card className="h-full bg-gray-800/50 border border-gray-700 rounded-2xl shadow-md hover:shadow-xl transition duration-300 overflow-hidden backdrop-blur-sm group">
+              <Card className="h-full bg-gray-800 border border-gray-700 rounded-2xl shadow-md hover:shadow-xl transition duration-300 overflow-hidden backdrop-blur-sm group">
                 <div className={`bg-gradient-to-br ${game.color} p-6 sm:p-8 flex items-center justify-center`}>
                   <div className="text-white transform group-hover:scale-110 transition duration-300">
                     {game.icon}
