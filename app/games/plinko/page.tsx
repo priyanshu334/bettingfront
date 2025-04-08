@@ -7,12 +7,14 @@ const CONFIG = {
   rows: 16,
   slots: [110, 41, 10, 1.2, 1, 0.8, 0.6, 0.5, 0.3, 0.5, 0.6, 0.8, 1, 1.2, 10, 41, 110],
   initialBalance: 1000,
-  minBet: 10,
+  minBet: 0,
+  maxBet: 10000,
   ballSize: 16,
   pegSize: 6,
   boardWidth: 100,
   boardHeight: 80,
   animationDuration: 3,
+  fixedDropPosition: 50, // Added fixed position at the center (50%)
 };
 
 type Peg = { x: number; y: number };
@@ -51,8 +53,10 @@ const Plinko = () => {
   const [gameState, setGameState] = useState<GameState>("idle");
   const [winnings, setWinnings] = useState<number>(0);
   const [slotIndex, setSlotIndex] = useState<number | null>(null);
-  const [dropPosition, setDropPosition] = useState<number>(50);
   const boardRef = useRef<HTMLDivElement>(null);
+  
+  // Using fixed drop position from CONFIG instead of state
+  const dropPosition = CONFIG.fixedDropPosition;
   
   const pegs = generatePegPositions();
 
@@ -69,17 +73,9 @@ const Plinko = () => {
   const handleBetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value);
     if (!isNaN(value) && value >= CONFIG.minBet) {
-      setBet(Math.min(value, balance));
+      // Limit bet to either the balance or max bet, whichever is smaller
+      setBet(Math.min(value, balance, CONFIG.maxBet));
     }
-  };
-
-  const handleDropPositionChange = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (gameState === "dropping" || !boardRef.current) return;
-    
-    const rect = boardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const newPosition = (x / rect.width) * 100;
-    setDropPosition(Math.max(10, Math.min(90, newPosition)));
   };
 
   // Advanced physics-based ball path simulation
@@ -201,6 +197,12 @@ const Plinko = () => {
   const dropBall = () => {
     if (gameState === "dropping") return;
     
+    // Check if bet is greater than 0 before allowing play
+    if (bet <= 0) {
+      setMessage("Bet amount must be greater than 0!");
+      return;
+    }
+    
     if (bet > balance) {
       setMessage("Insufficient balance!");
       return;
@@ -277,8 +279,8 @@ const Plinko = () => {
               className="pl-8 pr-3 py-2 w-28 border border-blue-700 bg-blue-950/70 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
               value={bet}
               onChange={handleBetChange}
-              min={CONFIG.minBet}
-              max={balance}
+              min={0}
+              max={10000}
               disabled={gameState === "dropping"}
             />
           </div>
@@ -301,7 +303,7 @@ const Plinko = () => {
       
       {/* Game message */}
       <p className={`text-lg mb-6 font-medium px-4 py-2 rounded-lg ${
-        message.includes("Insufficient") ? "bg-red-900/50 text-red-300" : 
+        message.includes("Insufficient") || message.includes("must be greater") ? "bg-red-900/50 text-red-300" : 
         message.includes("won") ? "bg-green-900/50 text-green-300" : 
         "bg-blue-900/50 text-blue-200"
       }`}>
@@ -312,18 +314,17 @@ const Plinko = () => {
       <div 
         ref={boardRef}
         className="relative w-full h-[32rem] bg-gradient-to-b from-blue-950 to-blue-900 rounded-2xl shadow-inner overflow-hidden border-2 border-blue-700/50"
-        onClick={handleDropPositionChange}
       >
-        {/* Drop position indicator */}
+        {/* Fixed drop position indicator */}
         {gameState !== "dropping" && (
           <motion.div 
-            className="absolute w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-red-600 z-30 cursor-pointer shadow-lg"
+            className="absolute w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-red-600 z-30 shadow-lg"
             style={{ 
               left: `calc(${dropPosition}% - 1rem)`, 
               top: "-0.5rem",
             }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+            animate={{ y: [0, 2, 0] }}
+            transition={{ repeat: Infinity, duration: 1.5 }}
           />
         )}
         
@@ -409,7 +410,7 @@ const Plinko = () => {
       </div>
       
       <p className="text-blue-300 mt-4 text-center text-sm">
-        Click on the top of the board to set drop position
+        Ball drops from fixed center position
       </p>
     </div>
   );
