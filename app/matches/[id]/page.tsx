@@ -14,7 +14,7 @@ import MatchCard from "@/components/MatchCard";
 import { bettingData } from "@/data/bettingData";
 import { MdLocationOn, MdCalendarToday, MdSportsCricket } from "react-icons/md";
 import Image from "next/image";
-
+//the code is okk
 interface Team {
   id: number;
   name: string;
