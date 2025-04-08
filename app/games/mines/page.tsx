@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 type Grid = (null | 'diamond' | 'bomb')[][];
 
 const MinesGame: React.FC = () => {
-  const [grid, setGrid] = useState<Grid>(Array(5).fill(null).map(() => Array(5).fill(null)))
+  const [grid, setGrid] = useState<Grid>(Array(5).fill(null).map(() => Array(4).fill(null)))
   const [reward, setReward] = useState<number>(0);
   const [gameOver, setGameOver] = useState<boolean>(false);
   const [bombPositions, setBombPositions] = useState<{row: number, col: number}[]>([]);
@@ -21,9 +21,12 @@ const MinesGame: React.FC = () => {
     if (!gameStarted) return;
     
     const newBombPositions: {row: number, col: number}[] = [];
-    while (newBombPositions.length < 5) { // 5 bombs in total (20% of 25 tiles)
+    const totalTiles = 5 * 4; // 5 rows x 4 columns
+    const bombCount = Math.floor(totalTiles * 0.2); // 20% of tiles are bombs
+    
+    while (newBombPositions.length < bombCount) {
       const row = Math.floor(Math.random() * 5);
-      const col = Math.floor(Math.random() * 5);
+      const col = Math.floor(Math.random() * 4);
       
       // Check if this position is already selected
       if (!newBombPositions.some(pos => pos.row === row && pos.col === col)) {
@@ -60,7 +63,7 @@ const MinesGame: React.FC = () => {
   };
 
   const resetGame = (): void => {
-    setGrid(Array(5).fill(null).map(() => Array(5).fill(null)));
+    setGrid(Array(5).fill(null).map(() => Array(4).fill(null)));
     setReward(0);
     setGameOver(false);
     setGameStarted(false);
@@ -135,7 +138,7 @@ const MinesGame: React.FC = () => {
               </div>
             </div>
             
-            <div className="grid grid-cols-5 gap-2 mb-6">
+            <div className="grid grid-cols-4 gap-2 mb-6">
               {grid.map((row, rowIndex) =>
                 row.map((cell, colIndex) => (
                   <Button
