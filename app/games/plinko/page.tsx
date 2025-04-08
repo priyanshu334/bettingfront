@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 // Game configuration
 const CONFIG = {
   rows: 16,
-  slots: [110, 41, 10, 5, 3, 1.5, 1, 0.5, 0.3, 0.5, 1, 1.5, 3, 5, 10, 41, 110],
+  slots: [110, 41, 10, 1.2, 1, 0.8, 0.6, 0.5, 0.3, 0.5, 0.6, 0.8, 1, 1.2, 10, 41, 110],
   initialBalance: 1000,
   minBet: 10,
   ballSize: 16,

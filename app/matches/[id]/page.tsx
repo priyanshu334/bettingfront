@@ -5,7 +5,7 @@ import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import RunsCard from "@/components/RunsOptionCard";
+import RunsOptionsCard from "@/components/RunsOptionCard";
 import PlayerRunsCard from "@/components/PlayerRunsCard";
 import PlayerWicketsCard from "@/components/PlayerWicketsCard";
 import PlayerBoundariesCard from "@/components/PlayerBoundariesCard";
@@ -76,7 +76,7 @@ export default function MatchDetails() {
 
   // Set up interval for odds updates
   useEffect(() => {
-    const interval = setInterval(updateAllOdds, 50000); // Update every 5 seconds
+    const interval = setInterval(updateAllOdds, 50000); // Update every 50 seconds
     return () => clearInterval(interval);
   }, [updateAllOdds]);
 
@@ -265,22 +265,23 @@ export default function MatchDetails() {
     })),
   };
 
+  // Updated runsData with over/under options to match RunsOptionsCard component
   const runsData = {
     heading: "Runs",
     options: [
-      { label: "1 Over Over 8", odds: parseFloat(generateRandomOdds()) },
-      { label: "1 Over Under 8", odds: parseFloat(generateRandomOdds()) },
-      { label: "2 Overs Over 18", odds: parseFloat(generateRandomOdds()) },
-      { label: "2 Overs Under 18", odds: parseFloat(generateRandomOdds()) },
-      { label: "6 Overs Over 75", odds: parseFloat(generateRandomOdds()) },
-      { label: "6 Overs Under 75", odds: parseFloat(generateRandomOdds()) },
-      { label: "10 Overs Over 120", odds: parseFloat(generateRandomOdds()) },
-      { label: "10 Overs Under 120", odds: parseFloat(generateRandomOdds()) },
-      { label: "15 Overs Over 150", odds: parseFloat(generateRandomOdds()) },
-      { label: "15 Overs Under 150", odds: parseFloat(generateRandomOdds()) },
-      { label: "20 Overs Over 200", odds: parseFloat(generateRandomOdds()) },
-      { label: "20 Overs Under 200", odds: parseFloat(generateRandomOdds()) },
-    ],
+      { label: "1 Over Over 8", odds: parseFloat(generateRandomOdds()), color: "red" },
+      { label: "1 Over Under 8", odds: parseFloat(generateRandomOdds()), color: "blue" },
+      { label: "2 Overs Over 18", odds: parseFloat(generateRandomOdds()), color: "red" },
+      { label: "2 Overs Under 18", odds: parseFloat(generateRandomOdds()), color: "blue" },
+      { label: "6 Overs Over 75", odds: parseFloat(generateRandomOdds()), color: "red" },
+      { label: "6 Overs Under 75", odds: parseFloat(generateRandomOdds()), color: "blue" },
+      { label: "10 Overs Over 120", odds: parseFloat(generateRandomOdds()), color: "red" },
+      { label: "10 Overs Under 120", odds: parseFloat(generateRandomOdds()), color: "blue" },
+      { label: "15 Overs Over 150", odds: parseFloat(generateRandomOdds()), color: "red" },
+      { label: "15 Overs Under 150", odds: parseFloat(generateRandomOdds()), color: "blue" },
+      { label: "20 Overs Over 200", odds: parseFloat(generateRandomOdds()), color: "red" },
+      { label: "20 Overs Under 200", odds: parseFloat(generateRandomOdds()), color: "blue" }
+    ]
   };
 
   return (
@@ -374,7 +375,7 @@ export default function MatchDetails() {
         </TabsContent>
 
         <TabsContent value="runs" className="mt-0">
-          <RunsCard 
+          <RunsOptionsCard 
             key={`runs-${oddsUpdateCount}`} // Force re-render when odds update
             heading={runsData.heading} 
             options={runsData.options} 
