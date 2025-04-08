@@ -76,7 +76,7 @@ export default function MatchDetails() {
 
   // Set up interval for odds updates
   useEffect(() => {
-    const interval = setInterval(updateAllOdds, 5000); // Update every 5 seconds
+    const interval = setInterval(updateAllOdds, 50000); // Update every 5 seconds
     return () => clearInterval(interval);
   }, [updateAllOdds]);
 
