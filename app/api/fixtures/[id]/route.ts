@@ -1,12 +1,12 @@
-// app/api/fixtures/[id]/route.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+// This is the correct way to extract params in App Router API routes
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
-  const fixtureId = params.id;
+  const fixtureId = context.params.id;
   const apiToken = process.env.SPORTMONKS_API_KEY;
 
   if (!apiToken) {
@@ -23,7 +23,7 @@ export async function GET(
       headers: {
         Accept: "application/json",
       },
-      next: { revalidate: 60 }, // optional: cache for 60 seconds (ISR-like)
+      next: { revalidate: 60 }, // optional caching
     });
 
     if (!response.ok) {
