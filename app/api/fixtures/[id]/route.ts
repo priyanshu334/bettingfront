@@ -1,10 +1,9 @@
 // app/api/fixtures/[id]/route.ts
-
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  context: { params: { id: string } }
+  context: { params: any } // 👈 key fix: don't destructure here, and use `any` or let it infer
 ) {
   const fixtureId = context.params.id;
   const apiToken = process.env.SPORTMONKS_API_KEY;
@@ -20,7 +19,7 @@ export async function GET(
       headers: {
         Accept: "application/json",
       },
-      next: { revalidate: 60 }, // optional caching
+      next: { revalidate: 60 },
     });
 
     if (!response.ok) {
