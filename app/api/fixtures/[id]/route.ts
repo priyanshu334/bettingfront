@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+// app/api/fixtures/[id]/route.ts
 
-// This is the correct way to extract params in App Router API routes
+import { NextRequest, NextResponse } from "next/server";
+
 export async function GET(
   req: NextRequest,
   context: { params: { id: string } }
@@ -10,10 +10,7 @@ export async function GET(
   const apiToken = process.env.SPORTMONKS_API_KEY;
 
   if (!apiToken) {
-    return NextResponse.json(
-      { error: "API token is missing" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "API token is missing" }, { status: 500 });
   }
 
   const url = `https://cricket.sportmonks.com/api/v2.0/fixtures/${fixtureId}?api_token=${apiToken}&include=localteam,visitorteam,venue,lineup`;
@@ -37,9 +34,6 @@ export async function GET(
     return NextResponse.json(data);
   } catch (err) {
     console.error("Error fetching fixture:", err);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
