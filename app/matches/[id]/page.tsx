@@ -3,7 +3,6 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import RunsOptionsCard from "@/components/RunsOptionCard";
 import PlayerRunsCard from "@/components/PlayerRunsCard";
@@ -14,7 +13,7 @@ import MatchCard from "@/components/MatchCard";
 import { bettingData } from "@/data/bettingData";
 import { MdLocationOn, MdCalendarToday, MdSportsCricket } from "react-icons/md";
 import Image from "next/image";
-//the code is okk
+
 interface Team {
   id: number;
   name: string;
@@ -267,7 +266,7 @@ export default function MatchDetails() {
 
   // Updated runsData with over/under options to match RunsOptionsCard component
   const runsData = {
-    heading: "Runs",
+    heading: "Match Runs",
     options: [
       { label: "1 Over Over 8", odds: parseFloat(generateRandomOdds()), color: "red" },
       { label: "1 Over Under 8", odds: parseFloat(generateRandomOdds()), color: "blue" },
@@ -349,99 +348,117 @@ export default function MatchDetails() {
         </CardContent>
       </Card>
 
-      {/* Tabs for different betting options */}
-      <Tabs defaultValue="general" className="w-full">
-        <TabsList className="grid grid-cols-3 sm:grid-cols-6 mb-4 sm:mb-6 gap-1 sm:gap-2 bg-slate-800">
-          <TabsTrigger value="general" className="text-xs sm:text-sm p-1 sm:p-2">General</TabsTrigger>
-          <TabsTrigger value="runs" className="text-xs sm:text-sm p-1 sm:p-2">Match Runs</TabsTrigger>
-          <TabsTrigger value="player-runs" className="text-xs sm:text-sm p-1 sm:p-2">Player Runs</TabsTrigger>
-          <TabsTrigger value="wickets" className="text-xs sm:text-sm p-1 sm:p-2">Wickets</TabsTrigger>
-          <TabsTrigger value="boundaries" className="text-xs sm:text-sm p-1 sm:p-2">Boundaries</TabsTrigger>
-          <TabsTrigger value="bowler" className="text-xs sm:text-sm p-1 sm:p-2">Bowler Stats</TabsTrigger>
-        </TabsList>
+      {/* General Betting Options */}
+      <div className="mb-8">
+        <h2 className="text-xl font-bold text-white mb-4 flex items-center">
+          <MdSportsCricket className="mr-2" />
+          General Betting Options
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+          {adaptedBettingData.map((item, index) => (
+            <MatchCard
+              key={`${index}-${oddsUpdateCount}`}
+              heading={item.heading}
+              team1={item.team1}
+              team2={item.team2}
+              buttons={item.buttons}
+            />
+          ))}
+        </div>
+      </div>
 
-        <TabsContent value="general" className="mt-0">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
-            {adaptedBettingData.map((item, index) => (
-              <MatchCard
-                key={`${index}-${oddsUpdateCount}`} // Force re-render when odds update
-                heading={item.heading}
-                team1={item.team1}
-                team2={item.team2}
-                buttons={item.buttons}
-              />
-            ))}
-          </div>
-        </TabsContent>
+      {/* Match Runs Section */}
+      <div className="mb-8">
+        <h2 className="text-xl font-bold text-white mb-4 flex items-center">
+          <MdSportsCricket className="mr-2" />
+          Match Runs
+        </h2>
+        <RunsOptionsCard 
+          key={`runs-${oddsUpdateCount}`}
+          heading={runsData.heading} 
+          options={runsData.options} 
+        />
+      </div>
 
-        <TabsContent value="runs" className="mt-0">
-          <RunsOptionsCard 
-            key={`runs-${oddsUpdateCount}`} // Force re-render when odds update
-            heading={runsData.heading} 
-            options={runsData.options} 
+      {/* Player Runs Section */}
+      <div className="mb-8">
+        <h2 className="text-xl font-bold text-white mb-4 flex items-center">
+          <MdSportsCricket className="mr-2" />
+          Player Runs
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <PlayerRunsCard 
+            key={`local-runs-${oddsUpdateCount}`}
+            heading={`${match.localTeam.name} - ${playerRunsData.heading}`} 
+            players={playerRunsData.players} 
           />
-        </TabsContent>
+          <PlayerRunsCard 
+            key={`visitor-runs-${oddsUpdateCount}`}
+            heading={`${match.visitorTeam.name} - ${visitorPlayerRunsData.heading}`} 
+            players={visitorPlayerRunsData.players} 
+          />
+        </div>
+      </div>
 
-        <TabsContent value="player-runs" className="mt-0">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <PlayerRunsCard 
-              key={`local-runs-${oddsUpdateCount}`}
-              heading={`${match.localTeam.name} - ${playerRunsData.heading}`} 
-              players={playerRunsData.players} 
-            />
-            <PlayerRunsCard 
-              key={`visitor-runs-${oddsUpdateCount}`}
-              heading={`${match.visitorTeam.name} - ${visitorPlayerRunsData.heading}`} 
-              players={visitorPlayerRunsData.players} 
-            />
-          </div>
-        </TabsContent>
+      {/* Player Wickets Section */}
+      <div className="mb-8">
+        <h2 className="text-xl font-bold text-white mb-4 flex items-center">
+          <MdSportsCricket className="mr-2" />
+          Player Wickets
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <PlayerWicketsCard 
+            key={`local-wickets-${oddsUpdateCount}`}
+            heading={`${match.localTeam.name} - ${playerWicketsData.heading}`} 
+            players={playerWicketsData.players} 
+          />
+          <PlayerWicketsCard 
+            key={`visitor-wickets-${oddsUpdateCount}`}
+            heading={`${match.visitorTeam.name} - ${visitorPlayerWicketsData.heading}`} 
+            players={visitorPlayerWicketsData.players} 
+          />
+        </div>
+      </div>
 
-        <TabsContent value="wickets" className="mt-0">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <PlayerWicketsCard 
-              key={`local-wickets-${oddsUpdateCount}`}
-              heading={`${match.localTeam.name} - ${playerWicketsData.heading}`} 
-              players={playerWicketsData.players} 
-            />
-            <PlayerWicketsCard 
-              key={`visitor-wickets-${oddsUpdateCount}`}
-              heading={`${match.visitorTeam.name} - ${visitorPlayerWicketsData.heading}`} 
-              players={visitorPlayerWicketsData.players} 
-            />
-          </div>
-        </TabsContent>
+      {/* Player Boundaries Section */}
+      <div className="mb-8">
+        <h2 className="text-xl font-bold text-white mb-4 flex items-center">
+          <MdSportsCricket className="mr-2" />
+          Player Boundaries
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <PlayerBoundariesCard 
+            key={`local-boundaries-${oddsUpdateCount}`}
+            heading={`${match.localTeam.name} - ${playerBoundariesData.heading}`} 
+            players={playerBoundariesData.players} 
+          />
+          <PlayerBoundariesCard 
+            key={`visitor-boundaries-${oddsUpdateCount}`}
+            heading={`${match.visitorTeam.name} - ${visitorPlayerBoundariesData.heading}`} 
+            players={visitorPlayerBoundariesData.players} 
+          />
+        </div>
+      </div>
 
-        <TabsContent value="boundaries" className="mt-0">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <PlayerBoundariesCard 
-              key={`local-boundaries-${oddsUpdateCount}`}
-              heading={`${match.localTeam.name} - ${playerBoundariesData.heading}`} 
-              players={playerBoundariesData.players} 
-            />
-            <PlayerBoundariesCard 
-              key={`visitor-boundaries-${oddsUpdateCount}`}
-              heading={`${match.visitorTeam.name} - ${visitorPlayerBoundariesData.heading}`} 
-              players={visitorPlayerBoundariesData.players} 
-            />
-          </div>
-        </TabsContent>
-
-        <TabsContent value="bowler" className="mt-0">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <BowlerRunsCard 
-              key={`local-bowler-${oddsUpdateCount}`}
-              heading={`${match.localTeam.name} - ${bowlerRunsData.heading}`} 
-              players={bowlerRunsData.players} 
-            />
-            <BowlerRunsCard 
-              key={`visitor-bowler-${oddsUpdateCount}`}
-              heading={`${match.visitorTeam.name} - ${visitorBowlerRunsData.heading}`} 
-              players={visitorBowlerRunsData.players} 
-            />
-          </div>
-        </TabsContent>
-      </Tabs>
+      {/* Bowler Stats Section */}
+      <div className="mb-8">
+        <h2 className="text-xl font-bold text-white mb-4 flex items-center">
+          <MdSportsCricket className="mr-2" />
+          Bowler Stats
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <BowlerRunsCard 
+            key={`local-bowler-${oddsUpdateCount}`}
+            heading={`${match.localTeam.name} - ${bowlerRunsData.heading}`} 
+            players={bowlerRunsData.players} 
+          />
+          <BowlerRunsCard 
+            key={`visitor-bowler-${oddsUpdateCount}`}
+            heading={`${match.visitorTeam.name} - ${visitorBowlerRunsData.heading}`} 
+            players={visitorBowlerRunsData.players} 
+          />
+        </div>
+      </div>
     </div>
   );
 }
