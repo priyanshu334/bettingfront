@@ -17,107 +17,108 @@ const PlayerRunsCard: React.FC<PlayerRunsCardProps> = ({ heading, players }) => 
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null);
   const [selectedOdds, setSelectedOdds] = useState<string | null>(null);
   const [betAmount, setBetAmount] = useState("");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleOddsClick = (playerName: string, odds: string) => {
     setSelectedPlayer(playerName);
     setSelectedOdds(odds.replace(/^:/, ""));
     setBetAmount("");
-    setIsDialogOpen(true);
   };
 
   const handlePlaceBet = () => {
     console.log(`Bet ₹${betAmount} on ${selectedPlayer} at odds ${selectedOdds}`);
-    setIsDialogOpen(false);
+    setSelectedPlayer(null);
+    setSelectedOdds(null);
+    setBetAmount("");
   };
 
   const handleCancel = () => {
     setSelectedPlayer(null);
     setSelectedOdds(null);
     setBetAmount("");
-    setIsDialogOpen(false);
   };
 
   return (
-    <div className="bg-gradient-to-br from-white to-gray-50 shadow-lg rounded-3xl p-6 w-full max-w-4xl mx-auto border border-gray-100">
-      <h2 className="text-2xl font-bold mb-6 text-center text-blue-800 border-b pb-4 border-gray-100">{heading}</h2>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {players.map((player, idx) => (
-          <div 
-            key={idx} 
-            className="border border-gray-200 rounded-2xl p-5 bg-white hover:shadow-md transition-all duration-300 transform hover:scale-102"
-          >
-            <div className="flex justify-between items-center mb-3">
-              <span className="font-semibold text-lg text-gray-800 capitalize">{player.name}</span>
-              <span className="text-sm bg-blue-50 text-blue-600 px-3 py-1 rounded-full font-medium">
-                Runs: {player.runs}
-              </span>
-            </div>
-            <div className="flex gap-2 flex-wrap mt-3">
+    <div className="bg-white shadow-md rounded-lg w-full overflow-hidden border border-gray-200">
+      {/* Heading */}
+      <div className="bg-yellow-100 px-4 py-3 text-left font-semibold text-gray-800 border-b border-gray-300">
+        {heading}
+      </div>
+
+      {/* Table Header */}
+      <div className="grid grid-cols-4 text-center text-sm font-semibold border-b border-gray-300">
+        <div className="text-left px-4 py-2 col-span-2 bg-gray-50">Player</div>
+        <div className="bg-yellow-500 text-white py-2">Runs</div>
+        <div className="bg-blue-500 text-white py-2">Odds</div>
+      </div>
+
+      {/* Player Rows */}
+      {players.map((player, index) => (
+        <div
+          key={index}
+          className="grid grid-cols-4 items-start text-center border-b border-gray-100"
+        >
+          {/* Name */}
+          <div className="text-left px-4 py-3 text-sm font-medium text-gray-700 col-span-2 bg-white capitalize">
+            {player.name}
+          </div>
+
+          {/* Runs */}
+          <div className="py-3 bg-yellow-50 text-yellow-700 font-semibold">
+            {player.runs}
+          </div>
+
+          {/* Odds + Inline Input */}
+          <div className="py-3 bg-gray-50 flex flex-col items-center gap-2 px-2">
+            <div className="flex flex-wrap justify-center gap-2">
               {player.buttons.map((btn, i) => (
                 <button
                   key={i}
                   onClick={() => handleOddsClick(player.name, btn)}
-                  className="bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold hover:bg-blue-200 hover:text-blue-800 transition-colors duration-200 flex items-center justify-center"
+                  className="bg-blue-100 text-blue-700 text-sm px-3 py-1 rounded-full font-medium hover:bg-blue-200 transition"
                 >
                   {btn.replace(/^:/, "")}
                 </button>
               ))}
             </div>
-          </div>
-        ))}
-      </div>
 
-      {/* Betting Dialog */}
-      {isDialogOpen && selectedPlayer && selectedOdds && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50 px-4">
-          <div className="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-md space-y-5 animate-fadeIn">
-            <div className="border-b border-gray-100 pb-4">
-              <h3 className="text-xl font-bold text-center text-blue-800">
-                Bet on {selectedPlayer}
-              </h3>
-              <p className="text-sm text-center text-gray-600 mt-2">Odds: {selectedOdds}</p>
-            </div>
-
-            <div className="py-4">
-              <label htmlFor="betAmount" className="block text-sm font-medium text-gray-700 mb-2">
-                Enter your bet amount
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <span className="text-gray-500">₹</span>
+            {selectedPlayer === player.name && selectedOdds && (
+              <div className="w-full text-left mt-2 space-y-2">
+                <p className="text-xs text-gray-600 pl-1">
+                  Placing bet on <strong>{selectedPlayer}</strong> at odds <strong>{selectedOdds}</strong>
+                </p>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="relative w-full">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
+                    <input
+                      type="number"
+                      min="1"
+                      value={betAmount}
+                      onChange={(e) => setBetAmount(e.target.value)}
+                      placeholder="Enter amount"
+                      className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                    />
+                  </div>
+                  <div className="flex gap-2 w-full">
+                    <button
+                      onClick={handleCancel}
+                      className="flex-1 bg-gray-100 text-gray-800 px-3 py-2 rounded-md hover:bg-gray-200 text-sm font-medium"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handlePlaceBet}
+                      disabled={!betAmount}
+                      className="flex-1 bg-blue-600 text-white px-3 py-2 rounded-md hover:bg-blue-700 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Place Bet
+                    </button>
+                  </div>
                 </div>
-                <input
-                  id="betAmount"
-                  type="number"
-                  min="1"
-                  value={betAmount}
-                  onChange={(e) => setBetAmount(e.target.value)}
-                  placeholder="Amount"
-                  className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-lg"
-                />
               </div>
-            </div>
-
-            <div className="flex justify-between gap-4 pt-4">
-              <button
-                onClick={handleCancel}
-                className="flex-1 bg-gray-100 text-gray-800 px-4 py-3 rounded-lg hover:bg-gray-200 font-medium transition-colors duration-200"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handlePlaceBet}
-                disabled={!betAmount}
-                className="flex-1 bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors duration-200"
-              >
-                Place Bet
-              </button>
-            </div>
+            )}
           </div>
         </div>
-      )}
+      ))}
     </div>
   );
 };

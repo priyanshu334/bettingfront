@@ -39,35 +39,49 @@ const PlayerWicketsCard: React.FC<PlayerWicketsCardProps> = ({ heading, players 
   };
 
   return (
-    <div className="bg-gradient-to-br from-white to-gray-50 shadow-lg rounded-3xl p-6 w-full max-w-4xl mx-auto border border-gray-100">
-      <h2 className="text-2xl font-bold mb-6 text-center text-purple-800 border-b pb-4 border-gray-100">{heading}</h2>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {players.map((player, idx) => (
-          <div 
-            key={idx} 
-            className="border border-gray-200 rounded-2xl p-5 bg-white hover:shadow-md transition-all duration-300 transform hover:scale-102"
-          >
-            <div className="flex justify-between items-center mb-3">
-              <span className="font-semibold text-lg text-gray-800 capitalize">{player.name}</span>
-              <span className="text-sm bg-purple-50 text-purple-600 px-3 py-1 rounded-full font-medium">
-                Wickets: {player.wickets}
-              </span>
-            </div>
-            <div className="flex gap-2 flex-wrap mt-3">
-              {player.buttons.map((btn, i) => (
-                <button
-                  key={i}
-                  onClick={() => handleOddsClick(player.name, btn)}
-                  className="bg-purple-100 text-purple-700 px-4 py-2 rounded-full text-sm font-semibold hover:bg-purple-200 hover:text-purple-800 transition-colors duration-200 flex items-center justify-center"
-                >
-                  {btn.replace(/^:/, "")}
-                </button>
-              ))}
-            </div>
-          </div>
-        ))}
+    <div className="bg-white shadow-md rounded-lg w-full overflow-hidden border border-gray-200">
+      {/* Heading Bar */}
+      <div className="bg-purple-100 px-4 py-3 text-left font-semibold text-gray-800 border-b border-gray-300">
+        {heading}
       </div>
+
+      {/* Table Header */}
+      <div className="grid grid-cols-4 text-center text-sm font-semibold border-b border-gray-300">
+        <div className="text-left px-4 py-2 col-span-2 bg-gray-50">Player</div>
+        <div className="bg-purple-500 text-white py-2">Wickets</div>
+        <div className="bg-blue-500 text-white py-2">Odds</div>
+      </div>
+
+      {/* Table Rows */}
+      {players.map((player, index) => (
+        <div
+          key={index}
+          className="grid grid-cols-4 items-center text-center border-b border-gray-100"
+        >
+          {/* Name */}
+          <div className="text-left px-4 py-3 text-sm font-medium text-gray-700 col-span-2 capitalize">
+            {player.name}
+          </div>
+
+          {/* Wickets */}
+          <div className="py-3 bg-purple-50 text-purple-700 font-semibold">
+            {player.wickets}
+          </div>
+
+          {/* Odds */}
+          <div className="py-3 bg-blue-50 flex flex-wrap justify-center gap-2 px-2">
+            {player.buttons.map((btn, i) => (
+              <button
+                key={i}
+                onClick={() => handleOddsClick(player.name, btn)}
+                className="bg-blue-100 text-blue-700 text-sm px-3 py-1 rounded-full font-medium hover:bg-blue-200 hover:text-blue-800 transition-colors duration-200"
+              >
+                {btn.replace(/^:/, "")}
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
 
       {/* Betting Dialog */}
       {isDialogOpen && selectedPlayer && selectedOdds && (

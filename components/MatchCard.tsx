@@ -1,133 +1,109 @@
-"use client";
+import React from "react";
 
-import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-
-interface MatchCardProps {
-  heading: string;
-  team1: React.ReactNode;
-  team2: React.ReactNode;
-  buttons: string[];
-}
-
-const MatchCard: React.FC<MatchCardProps> = ({ heading, team1, team2, buttons }) => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedBet, setSelectedBet] = useState("");
-  const [betAmount, setBetAmount] = useState("");
-
-  const handleOpenBetDialog = (bet: string) => {
-    setSelectedBet(bet);
-    setIsDialogOpen(true);
-  };
-
-  const handlePlaceBet = () => {
-    // Here you would handle the actual bet placement logic
-    // For now we'll just close the dialog and reset state
-    setIsDialogOpen(false);
-    setBetAmount("");
-    
-    // In a real app, you would call an API to process the bet
-    console.log(`Bet placed: ${selectedBet} with ₹${betAmount}`);
-  };
-
+const MatchOdds = () => {
   return (
-    <>
-      <Card className="w-full max-w-md mx-auto p-4 rounded-2xl shadow-lg hover:shadow-xl transition-shadow border-t-4 border-blue-500">
-        <h2 className="text-xl font-bold text-center mb-4 text-slate-800">{heading}</h2>
-        <CardContent className="flex flex-col gap-4 p-0">
-          <div className="flex justify-between items-center bg-gray-50 p-4 rounded-lg">
-            <div className="text-left font-medium text-lg">{team1}</div>
-            <div className="text-xs text-gray-500 font-medium">VS</div>
-            <div className="text-right font-medium text-lg">{team2}</div>
-          </div>
-          <div className="grid grid-cols-3 gap-2 mt-4">
-            {buttons.map((btn, index) => {
-              const [label, odds] = btn.split(":");
-              return (
-                <button
-                  key={index}
-                  className="bg-blue-500 hover:bg-blue-600 text-white py-3 px-3 rounded-lg text-sm font-medium transition-colors flex flex-col items-center justify-center"
-                  onClick={() => handleOpenBetDialog(btn)}
-                >
-                  <span className="mb-1">{label}</span>
-                  <Badge className="bg-blue-700">{odds}</Badge>
-                </button>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
+    <div className="p-4 space-y-6 text-sm bg-gray-50 font-sans  mx-auto shadow-lg rounded-lg">
+      {/* Match Odds Header */}
+      <div className="flex items-center justify-between bg-emerald-800 text-white font-semibold px-4 py-3 rounded-t-md">
+        <span className="text-base">Match Odds</span>
+        <button className="bg-amber-500 hover:bg-amber-600 text-black font-bold px-3 py-1 rounded transition duration-200">CASHOUT</button>
+      </div>
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center">Place Your Bet</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <div className="mb-6 bg-gray-50 p-4 rounded-lg">
-              <div className="text-sm text-gray-500 mb-2">Selected Bet</div>
-              <div className="flex justify-between items-center">
-                <div className="font-medium">{heading}</div>
-                <Badge className="bg-blue-500">{selectedBet}</Badge>
-              </div>
-            </div>
-            
-            <div className="mb-4">
-              <label htmlFor="bet-amount" className="block text-sm font-medium text-gray-700 mb-1">
-                Enter Amount (₹)
-              </label>
-              <Input
-                id="bet-amount"
-                type="number"
-                placeholder="100"
-                value={betAmount}
-                onChange={(e) => setBetAmount(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md"
-                min="10"
-                step="10"
-              />
-              <p className="text-xs text-gray-500 mt-1">Minimum bet: ₹10</p>
-            </div>
-            
-            <div className="mt-2 text-sm text-gray-500">
-              {betAmount && !isNaN(parseFloat(betAmount)) && parseFloat(betAmount) > 0 ? (
-                <div className="bg-blue-50 p-2 rounded-md">
-                  <p>Potential winning: ₹{(parseFloat(betAmount) * parseFloat(selectedBet.split(":")[1] || "0")).toFixed(2)}</p>
-                </div>
-              ) : null}
-            </div>
+      {/* Match Odds Table */}
+      <div className="border border-gray-300 text-black rounded-md overflow-hidden shadow-sm">
+        <div className="grid grid-cols-4 bg-gray-200 text-xs font-bold text-center">
+          <span className="col-span-2 py-2">Teams</span>
+          <span className="py-2">BACK</span>
+          <span className="py-2">LAY</span>
+        </div>
+        <div className="grid grid-cols-4 border-t text-center text-sm">
+          <div className="col-span-2 py-2 px-3 text-left font-medium">Royal Challengers Bengaluru</div>
+          <div className="bg-blue-400 py-2 font-semibold">
+            1.82<br /><span className="text-xs text-gray-700">227.44</span>
           </div>
-          <DialogFooter className="flex sm:justify-between gap-4">
-            <Button 
-              variant="outline" 
-              onClick={() => setIsDialogOpen(false)} 
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button 
-              type="submit" 
-              onClick={handlePlaceBet} 
-              className="flex-1 bg-green-600 hover:bg-green-700"
-              disabled={!betAmount || isNaN(parseFloat(betAmount)) || parseFloat(betAmount) < 10}
-            >
-              Place Bet
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+          <div className="bg-red-400 py-2 font-semibold">
+            1.83<br /><span className="text-xs text-gray-700">4403.68</span>
+          </div>
+        </div>
+        <div className="grid grid-cols-4 border-t text-center text-sm">
+          <div className="col-span-2 py-2 px-3 text-left font-medium">Delhi Capitals</div>
+          <div className="bg-blue-400 py-2 font-semibold">
+            2.2<br /><span className="text-xs text-gray-700">3748.87</span>
+          </div>
+          <div className="bg-red-400 py-2 font-semibold">
+            2.22<br /><span className="text-xs text-gray-700">186.46</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Bookmaker Section */}
+      <div className="text-black">
+        <div className="bg-emerald-800 text-white font-semibold px-4 py-3 rounded-t-md">BOOKMAKER</div>
+        <div className="text-xs text-gray-600 mt-2 mb-2 px-1">Min:100 Max:200k</div>
+        <div className="grid grid-cols-6 bg-gray-200 text-xs font-bold text-center">
+          <span className="col-span-2 py-2">Teams</span>
+          <span className="py-2">BACK</span>
+          <span className="py-2">LAY</span>
+          <span className="py-2">-</span>
+          <span className="py-2">-</span>
+        </div>
+        <div className="grid grid-cols-6 border-t text-black ttext-center text-sm">
+          <div className="col-span-2 py-2 text-left px-3 font-medium">Royal Challengers ...</div>
+          <div className="bg-blue-400 py-2 font-semibold">83<br /><span className="text-xs text-gray-700">200k</span></div>
+          <div className="bg-red-400 py-2 font-semibold">86<br /><span className="text-xs text-gray-700">200k</span></div>
+          <span className="py-2">-</span>
+          <span className="py-2">-</span>
+        </div>
+        <div className="grid grid-cols-6 border-t text-center text-sm">
+          <div className="col-span-2 py-2 text-left px-3 font-medium">Delhi Capitals</div>
+          <div className="bg-blue-400 py-2 font-semibold">115<br /><span className="text-xs text-gray-700">200k</span></div>
+          <div className="bg-red-400 py-2 font-semibold">121<br /><span className="text-xs text-gray-700">200k</span></div>
+          <span className="py-2">-</span>
+          <span className="py-2">-</span>
+        </div>
+      </div>
+
+      {/* Toss Section */}
+      <div className="text-black">
+        <div className="bg-emerald-800 text-white font-semibold px-4 py-3 rounded-t-md">TOSS</div>
+        <div className="text-xs text-gray-600 mt-2 mb-2 px-1">Min:100 Max:500k</div>
+        <div className="grid grid-cols-5 bg-gray-200 text-xs font-bold text-center">
+          <span className="col-span-2 py-2">Teams</span>
+          <span className="py-2">BACK</span>
+          <span className="py-2">LAY</span>
+          <span className="py-2">-</span>
+        </div>
+        <div className="grid grid-cols-5 border-t text-center text-sm">
+          <div className="col-span-2 py-2 text-left px-3 font-medium">Royal Challengers ...</div>
+          <div className="bg-blue-200 py-2 font-semibold">98<br /><span className="text-xs text-gray-700">500k</span></div>
+          <div className="bg-red-200 py-2 font-semibold">0<br /><span className="text-xs text-gray-700">0.0</span></div>
+          <span className="py-2">-</span>
+        </div>
+        <div className="grid grid-cols-5 border-t text-center text-sm">
+          <div className="col-span-2 py-2 text-left px-3 font-medium">Delhi Capitals</div>
+          <div className="bg-blue-200 py-2 font-semibold">98<br /><span className="text-xs text-gray-700">500k</span></div>
+          <div className="bg-red-200 py-2 font-semibold">0<br /><span className="text-xs text-gray-700">0.0</span></div>
+          <span className="py-2">-</span>
+        </div>
+      </div>
+
+      {/* Win Prediction Section */}
+      <div className="text-black">
+        <div className="bg-emerald-800 text-white font-semibold px-4 py-3 rounded-t-md">Who will Win the Match?</div>
+        <div className="text-xs text-gray-600 mt-2 mb-2 px-1">Min: - Max: 1</div>
+        <div className="grid grid-cols-2 gap-4 text-center mt-3">
+          <div className="bg-blue-200 p-4 rounded shadow-md hover:shadow-lg transition duration-200">
+            <div className="font-semibold text-sm mb-1">Royal Challengers Bengaluru</div>
+            <div className="text-2xl font-bold text-blue-800">1.81</div>
+          </div>
+          <div className="bg-blue-200 p-4 rounded shadow-md hover:shadow-lg transition duration-200">
+            <div className="font-semibold text-sm mb-1">Delhi Capitals</div>
+            <div className="text-2xl font-bold text-blue-800">2.14</div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default MatchCard;
+export default MatchOdds;
