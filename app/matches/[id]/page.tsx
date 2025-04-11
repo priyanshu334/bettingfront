@@ -197,11 +197,7 @@ export default function MatchDetails() {
     );
   }
 
-  // ========================================================================
-  // IMPORTANT: Placeholder Replacement Logic
-  // This section takes the generic `bettingData` (with CSK/PBKS placeholders)
-  // and replaces the placeholders with the actual team names fetched for this specific match.
-  // ========================================================================
+ 
   const adaptedBettingData = bettingData.map(item => {
     const newItem = { ...item }; // Create a copy to avoid modifying the original import
 
@@ -212,22 +208,22 @@ export default function MatchDetails() {
     // Replace placeholders in 'heading' property if it exists and is a string
     if (typeof newItem.heading === 'string') {
         newItem.heading = newItem.heading
-            .replace(/CSK/g, localTeamName)   // Replace all "CSK" with actual local team name
-            .replace(/PBKS/g, visitorTeamName); // Replace all "PBKS" with actual visitor team name
+            .replace(/gt/g, localTeamName)   // Replace all "CSK" with actual local team name
+            .replace(/rcb/g, visitorTeamName); // Replace all "PBKS" with actual visitor team name
     }
 
     // Replace placeholders in 'team1' property if it exists and is a string
     if (typeof newItem.team1 === 'string') {
         newItem.team1 = newItem.team1
             .replace(/CSK/g, localTeamName)
-            .replace(/PBKS/g, visitorTeamName);
+            .replace(/kkr/g, visitorTeamName);
     }
 
     // Replace placeholders in 'team2' property if it exists and is a string
     if (typeof newItem.team2 === 'string') {
         newItem.team2 = newItem.team2
             .replace(/CSK/g, localTeamName)
-            .replace(/PBKS/g, visitorTeamName);
+            .replace(/kkr/g, visitorTeamName);
     }
 
     // Update button odds dynamically
@@ -245,10 +241,7 @@ export default function MatchDetails() {
 
     return newItem; // Return the modified item for the new array
   });
-  // ========================================================================
-  // End of Placeholder Replacement Logic
-  // ========================================================================
-
+  
 
   // --- Generate dynamic data for other cards based on fetched players/teams ---
   const playerRunsData = {
@@ -294,20 +287,51 @@ export default function MatchDetails() {
     };
 
   // Data for RunsOptionsCard (Innings Runs) - odds updated dynamically
-  const runsData = {
-    heading: "Innings Runs",
+  const runsAndWicketsData = {
+    heading: "Innings Runs & Wickets",
     options: [
-      { label: "1 Over > 8.5", odds: 0, color: "red" }, // Initial odds set to 0, will be updated below
-      { label: "1 Over < 8.5", odds: 0, color: "blue" },
-      { label: "6 Overs > 48.5", odds: 0, color: "red" },
-      { label: "6 Overs < 48.5", odds: 0, color: "blue" },
-      { label: "10 Overs > 78.5", odds: 0, color: "red" },
-      { label: "10 Overs < 78.5", odds: 0, color: "blue" },
-      { label: "20 Overs > 165.5", odds: 0, color: "red" },
-      { label: "20 Overs < 165.5", odds: 0, color: "blue" },
-    ].map(opt => ({ ...opt, odds: parseFloat(generateRandomOdds()) })) // Map to generate initial random odds
+      // Local Team - Runs
+      { label: `1 Over (${match.localTeam.name})`, noOdds: rand(5, 15), yesOdds: rand(5, 15) },
+      { label: `6 Overs (${match.localTeam.name})`, noOdds: rand(50, 60), yesOdds: rand(50, 60) },
+      { label: `10 Overs (${match.localTeam.name})`, noOdds: rand(80, 90), yesOdds: rand(80, 90) },
+      { label: `15 Overs (${match.localTeam.name})`, noOdds: rand(110, 120), yesOdds: rand(110, 120) },
+      { label: `20 Overs (${match.localTeam.name})`, noOdds: rand(160, 170), yesOdds: rand(160, 170) },
+  
+      // Visitor Team - Runs
+      { label: `1 Over (${match.visitorTeam.name})`, noOdds: rand(50, 60), yesOdds: rand(50, 60) },
+      { label: `6 Overs (${match.visitorTeam.name})`, noOdds: rand(50, 60), yesOdds: rand(50, 60) },
+      { label: `10 Overs (${match.visitorTeam.name})`, noOdds: rand(80, 90), yesOdds: rand(80, 90) },
+      { label: `15 Overs (${match.visitorTeam.name})`, noOdds: rand(110, 120), yesOdds: rand(110, 120) },
+      { label: `20 Overs (${match.visitorTeam.name})`, noOdds: rand(160, 170), yesOdds: rand(160, 170) },
+  
+      // Match Totals - Runs
+      { label: `Total Match Runs (${match.localTeam.name})`, noOdds: rand(340, 360), yesOdds: rand(340, 360) },
+      { label: `Total Match Runs (${match.visitorTeam.name})`, noOdds: rand(340, 360), yesOdds: rand(340, 360) },
+      { label: `Total Match 4s (${match.localTeam.name} vs ${match.visitorTeam.name})`, noOdds: rand(20, 30), yesOdds: rand(20, 30) },
+      { label: `Total Match 6s (${match.localTeam.name} vs ${match.visitorTeam.name})`, noOdds: rand(15, 25), yesOdds: rand(15, 25) },
+  
+      // Local Team - Wickets
+      { label: `6 Over Wickets (${match.localTeam.name})`, noOdds: rand(1, 3), yesOdds: rand(1, 3) },
+      { label: `10 Over Wickets (${match.localTeam.name})`, noOdds: rand(2, 4), yesOdds: rand(2, 4) },
+      { label: `15 Over Wickets (${match.localTeam.name})`, noOdds: rand(3, 5), yesOdds: rand(3, 5) },
+      { label: `20 Over Wickets (${match.localTeam.name})`, noOdds: rand(4, 6), yesOdds: rand(4, 6) },
+  
+      // Visitor Team - Wickets
+      { label: `6 Over Wickets (${match.visitorTeam.name})`, noOdds: rand(1, 3), yesOdds: rand(1, 3) },
+      { label: `10 Over Wickets (${match.visitorTeam.name})`, noOdds: rand(2, 4), yesOdds: rand(2, 4) },
+      { label: `15 Over Wickets (${match.visitorTeam.name})`, noOdds: rand(3, 5), yesOdds: rand(3, 5) },
+      { label: `20 Over Wickets (${match.visitorTeam.name})`, noOdds: rand(4, 6), yesOdds: rand(4, 6) },
+  
+      // Total Match Wickets
+      { label: `Total Match Wickets (${match.localTeam.name} vs ${match.visitorTeam.name})`, noOdds: rand(10, 15), yesOdds: rand(10, 15) }
+    ]
   };
-
+  
+  // Helper to randomize odds within range
+  function rand(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+  
   // --- Render Component ---
   return (
     <div className="container mx-auto p-4 bg-gray-900 min-h-screen text-gray-200">
@@ -359,42 +383,27 @@ export default function MatchDetails() {
 
       {/* General Betting Options - Uses adaptedBettingData */}
       <div className="mb-8">
-        <h2 className="text-2xl font-semibold text-white mb-4">General Betting Options</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        <div className="flex justify-center space-x-20">
+        <h2 className="text-2xl font-semibold text-white mb-4 hover:font-bold hover:text-yellow-500">General Betting Options</h2>
+        <Link href="/fancy"><h2 className="text-2xl font-semibold text-white mb-4 hover:font-bold hover:text-yellow-500">Fancy Betting Options</h2></Link>
+
+        </div>
+       
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 align-items-center">
           {/* Renders MatchCards using the data where placeholders SHOULD have been replaced */}
-          {adaptedBettingData.map((item, index) => (
-            <MatchCard
-              key={`general-${index}-${oddsUpdateCount}`} // Key includes oddsUpdateCount to force re-render on odds update
-              heading={item.heading} // This heading should now contain actual team names
-              team1={item.team1}     // This team1 should now contain actual team names (if used in bettingData)
-              team2={item.team2}     // This team2 should now contain actual team names (if used in bettingData)
-              buttons={item.buttons} // Buttons have updated odds
-            />
-          ))}
+          <MatchCard/>
         </div>
       </div>
 
       {/* Match Runs Options */}
       <div className="mb-8">
-        <h2 className="text-2xl font-semibold text-white mb-4">Match Runs</h2>
-        <RunsOptionsCard
-  heading="Normal"
-  options={[
-    { label: "6 over runs RCB(RCB vs DC)adv", noOdds: 55, yesOdds: 57 },
-    { label: "6 over runs DC(RCB vs DC)adv", noOdds: 54, yesOdds: 56 },
-    { label: "10 over runs RCB(RCB vs DC)adv", noOdds: 91, yesOdds: 93 },
-    { label: "10 over runs DC(RCB vs DC)adv", noOdds: 86, yesOdds: 88 },
-    { label: "15 over runs RCB(RCB vs DC)adv", noOdds: 137, yesOdds: 139 },
-    { label: "15 over runs DC(RCB vs DC)adv", noOdds: 131, yesOdds: 133 },
-    { label: "Match 1st over run(RCB vs DC)adv", noOdds: 7, yesOdds: 8 },
-    { label: "20 over runs RCB(RCB vs DC)adv", noOdds: 194, yesOdds: 197 },
-    { label: "20 over runs DC(RCB vs DC)adv", noOdds: 189, yesOdds: 192 },
-    { label: "Total Match Runs(RCB vs DC)adv", noOdds: 364, yesOdds: 371 },
-  ]
-  }
-/>
-      </div>
-
+  <h2 className="text-2xl font-semibold text-white mb-4">Match Runs</h2>
+  <RunsOptionsCard
+    key={`runs-options-${oddsUpdateCount}`}
+    heading={runsAndWicketsData.heading}
+    options={runsAndWicketsData.options}
+  />
+</div>
       {/* Player Runs (Split by Team) */}
       <div className="mb-8">
         <h2 className="text-2xl font-semibold text-white mb-4">Player Runs</h2>
