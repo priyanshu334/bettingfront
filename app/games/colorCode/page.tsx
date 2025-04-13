@@ -13,7 +13,7 @@ const colorMultipliers: Record<ColorOption, number> = {
 
 export default function ColorPredictionGame() {
   const [balance, setBalance] = useState<number>(1000);
-  const [betAmount, setBetAmount] = useState<number>(100);
+  const [betAmount, setBetAmount] = useState<number>(0); // Changed to 0
   const [selectedColor, setSelectedColor] = useState<ColorOption | null>(null);
   const [predictedColor, setPredictedColor] = useState<ColorOption | null>(null);
   const [result, setResult] = useState<string>("");
@@ -59,8 +59,13 @@ export default function ColorPredictionGame() {
   };
 
   const handleBetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Math.max(0, Math.min(balance, Number(e.target.value)));
-    setBetAmount(value);
+    const value = Number(e.target.value);
+    // Only allow values between 0 and balance
+    if (value >= 0 && value <= balance) {
+      setBetAmount(value);
+    } else if (value > balance) {
+      setBetAmount(balance);
+    }
   };
 
   // Auto-reset confetti after 3 seconds
@@ -112,12 +117,13 @@ export default function ColorPredictionGame() {
               <div className="flex gap-2 items-center">
                 <Input
                   type="number"
-                  value={betAmount}
+                  value={betAmount || ""} // Show empty when 0 for better UX
                   onChange={handleBetChange}
                   className="text-black text-lg py-4"
-                  min="1"
+                  min="0"
                   max={balance}
                   disabled={isProcessing}
+                  placeholder="Enter bet amount"
                 />
                 <Button 
                   onClick={() => setBetAmount(balance)}
@@ -128,6 +134,9 @@ export default function ColorPredictionGame() {
                   Max
                 </Button>
               </div>
+              {betAmount <= 0 && (
+                <p className="text-red-400 text-sm mt-1">Please enter a bet amount</p>
+              )}
             </div>
             
             {/* Color Selection */}
@@ -152,6 +161,9 @@ export default function ColorPredictionGame() {
                   </button>
                 ))}
               </div>
+              {!selectedColor && (
+                <p className="text-red-400 text-sm mt-2 text-center">Please select a color</p>
+              )}
             </div>
             
             {/* Predict Button */}

@@ -31,10 +31,10 @@ export default function GamesPage() {
     <div className="min-h-screen w-full flex flex-col items-center justify-start  text-white px-4 sm:px-6 md:px-8 py-12">
       <div className="max-w-6xl w-full">
         <div className="text-center mb-10 sm:mb-14">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">
+          <h1 className="text-3xl sm:text-4xl text-white md:text-5xl font-extrabold mb-4  bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">
             Choose Your Game
           </h1>
-          <p className="text-gray-400 text-base sm:text-lg max-w-2xl mx-auto">
+          <p className="text-white text-base sm:text-lg max-w-2xl mx-auto">
             Select from our collection of exciting games and test your luck.
           </p>
         </div>
@@ -49,11 +49,11 @@ export default function GamesPage() {
                   </div>
                 </div>
                 <CardContent className="p-4 sm:p-6">
-                  <h2 className="text-lg sm:text-xl font-bold mb-1 sm:mb-2">{game.name}</h2>
-                  <p className="text-gray-400 text-sm sm:text-base">{game.description}</p>
+                  <h2 className="text-lg sm:text-xl text-white font-bold mb-1 sm:mb-2">{game.name}</h2>
+                  <p className=" text-white text-sm sm:text-base">{game.description}</p>
                 </CardContent>
                 <div className="px-4 sm:px-6 pb-4 sm:pb-6">
-                  <div className="bg-gray-700/50 text-center text-sm sm:text-base py-2 rounded-lg group-hover:bg-white/10 transition duration-300 font-medium">
+                  <div className="bg-gray-700/50 text-center text-white text-sm sm:text-base py-2 rounded-lg group-hover:bg-white/10 transition duration-300 font-medium">
                     Play Now
                   </div>
                 </div>
@@ -65,3 +65,4 @@ export default function GamesPage() {
     </div>
   );
 }
+

@@ -14,20 +14,19 @@ const CONFIG = {
   boardWidth: 100,
   boardHeight: 80,
   animationDuration: 3,
-  fixedDropPosition: 50, // Added fixed position at the center (50%)
+  fixedDropPosition: 50,
 };
 
 type Peg = { x: number; y: number };
 type BallPath = { x: number; y: number }[];
 type GameState = "idle" | "dropping" | "finished";
 
-// Generate pegs in a perfect triangular layout
 const generatePegPositions = (): Peg[] => {
   const pegs: Peg[] = [];
   const { rows, boardWidth, boardHeight, pegSize } = CONFIG;
   
   const verticalSpacing = boardHeight / rows;
-  const horizontalPadding = pegSize * 2; // Extra space on sides
+  const horizontalPadding = pegSize * 2;
   
   for (let row = 0; row < rows; row++) {
     const pegsInRow = row + 1;
@@ -47,7 +46,7 @@ const generatePegPositions = (): Peg[] => {
 
 const Plinko = () => {
   const [balance, setBalance] = useState<number>(CONFIG.initialBalance);
-  const [bet, setBet] = useState<number>(50);
+  const [bet, setBet] = useState<string>("");
   const [message, setMessage] = useState<string>("Place your bet and drop the ball!");
   const [ballPath, setBallPath] = useState<BallPath>([]);
   const [gameState, setGameState] = useState<GameState>("idle");
@@ -55,14 +54,11 @@ const Plinko = () => {
   const [slotIndex, setSlotIndex] = useState<number | null>(null);
   const boardRef = useRef<HTMLDivElement>(null);
   
-  // Using fixed drop position from CONFIG instead of state
   const dropPosition = CONFIG.fixedDropPosition;
-  
   const pegs = generatePegPositions();
 
-  // Reset message after timeout
   useEffect(() => {
-    if (message.includes("Insufficient")) {
+    if (message.includes("Insufficient") || message.includes("Please enter") || message.includes("must be greater")) {
       const timer = setTimeout(() => {
         setMessage("Place your bet and drop the ball!");
       }, 3000);
@@ -71,20 +67,17 @@ const Plinko = () => {
   }, [message]);
 
   const handleBetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    if (!isNaN(value) && value >= CONFIG.minBet) {
-      // Limit bet to either the balance or max bet, whichever is smaller
-      setBet(Math.min(value, balance, CONFIG.maxBet));
+    const value = e.target.value;
+    if (value === "" || /^\d*$/.test(value)) {
+      setBet(value);
     }
   };
 
-  // Advanced physics-based ball path simulation
   const simulateBallPath = (): { path: BallPath; finalSlot: number } => {
     const path: BallPath = [];
     const { boardWidth, ballSize, pegSize, slots } = CONFIG;
     const slotWidth = boardWidth / slots.length;
     
-    // Physics parameters
     const physics = {
       gravity: 0.2,
       friction: 0.92,
@@ -93,7 +86,6 @@ const Plinko = () => {
       terminalVelocity: 5,
     };
     
-    // Ball state
     const ball = {
       x: dropPosition,
       y: 0,
@@ -104,7 +96,6 @@ const Plinko = () => {
     
     path.push({ x: ball.x, y: ball.y });
     
-    // Organize pegs by row for efficient collision detection
     const pegsByRow: Record<number, Peg[]> = {};
     pegs.forEach(peg => {
       const row = Math.round(peg.y / (CONFIG.boardHeight / CONFIG.rows));
@@ -116,14 +107,10 @@ const Plinko = () => {
     const maxRow = Math.max(...Object.keys(pegsByRow).map(Number));
     
     while (ball.y < CONFIG.boardHeight) {
-      // Apply forces
       ball.vy = Math.min(ball.vy + physics.gravity, physics.terminalVelocity);
-      
-      // Update position
       ball.x += ball.vx;
       ball.y += ball.vy;
       
-      // Check for collisions with current row
       if (currentRow <= maxRow && pegsByRow[currentRow]) {
         for (const peg of pegsByRow[currentRow]) {
           const dx = ball.x - peg.x;
@@ -132,33 +119,24 @@ const Plinko = () => {
           const minDistance = ball.radius + pegSize / 2;
           
           if (distance < minDistance) {
-            // Collision response
             const nx = dx / distance;
             const ny = dy / distance;
-            
-            // Position correction
             const overlap = minDistance - distance;
             ball.x += nx * overlap * 0.5;
             ball.y += ny * overlap * 0.5;
-            
-            // Calculate impulse
             const dot = ball.vx * nx + ball.vy * ny;
             ball.vx = (ball.vx - 2 * dot * nx) * physics.restitution;
             ball.vy = (ball.vy - 2 * dot * ny) * physics.restitution;
-            
-            // Add randomness
             ball.vx += (Math.random() - 0.5) * physics.randomness;
             ball.vy += (Math.random() - 0.1) * physics.randomness;
           }
         }
       }
       
-      // Move to next row if we've passed it
       if (ball.y > (currentRow + 1) * (CONFIG.boardHeight / CONFIG.rows)) {
         currentRow++;
       }
       
-      // Boundary collisions
       if (ball.x < ball.radius) {
         ball.x = ball.radius;
         ball.vx = -ball.vx * physics.friction;
@@ -167,11 +145,9 @@ const Plinko = () => {
         ball.vx = -ball.vx * physics.friction;
       }
       
-      // Apply friction
       ball.vx *= physics.friction;
       ball.vy *= physics.friction;
       
-      // Record position (with decimation to optimize path)
       if (path.length < 2 || 
           Math.abs(ball.x - path[path.length-1].x) > 1 || 
           Math.abs(ball.y - path[path.length-1].y) > 1) {
@@ -179,13 +155,11 @@ const Plinko = () => {
       }
     }
     
-    // Determine final slot
     const finalSlot = Math.min(
       Math.floor(ball.x / slotWidth), 
       slots.length - 1
     );
     
-    // Add final position
     path.push({ 
       x: (finalSlot + 0.5) * slotWidth, 
       y: CONFIG.boardHeight 
@@ -197,13 +171,24 @@ const Plinko = () => {
   const dropBall = () => {
     if (gameState === "dropping") return;
     
-    // Check if bet is greater than 0 before allowing play
-    if (bet <= 0) {
+    if (bet === "") {
+      setMessage("Please enter a bet amount!");
+      return;
+    }
+    
+    const numericBet = parseInt(bet);
+    
+    if (isNaN(numericBet) ){
+      setMessage("Please enter a valid bet amount!");
+      return;
+    }
+    
+    if (numericBet <= 0) {
       setMessage("Bet amount must be greater than 0!");
       return;
     }
     
-    if (bet > balance) {
+    if (numericBet > balance) {
       setMessage("Insufficient balance!");
       return;
     }
@@ -213,17 +198,16 @@ const Plinko = () => {
     setSlotIndex(null);
     setBallPath([]);
     
-    // Small delay to allow state to update before animation
     setTimeout(() => {
       const { path, finalSlot } = simulateBallPath();
       setBallPath(path);
       
-      const currentWinnings = bet * CONFIG.slots[finalSlot];
+      const currentWinnings = numericBet * CONFIG.slots[finalSlot];
       setWinnings(currentWinnings);
       
       setTimeout(() => {
         setSlotIndex(finalSlot);
-        setBalance(prev => prev - bet + currentWinnings);
+        setBalance(prev => prev - numericBet + currentWinnings);
         setMessage(`Ball landed on x${CONFIG.slots[finalSlot]}. You won ₹${currentWinnings.toFixed(2)}!`);
         setGameState("finished");
       }, CONFIG.animationDuration * 1000);
@@ -237,7 +221,6 @@ const Plinko = () => {
     setMessage("Place your bet and drop the ball!");
   };
 
-  // Slot color gradient based on multiplier value
   const getSlotColor = (multiplier: number) => {
     if (multiplier >= 41) return "from-pink-500 to-pink-600";
     if (multiplier >= 5) return "from-red-500 to-red-600";
@@ -253,7 +236,6 @@ const Plinko = () => {
         Plinko Game
       </h1>
       
-      {/* Game info panel */}
       <div className="w-full flex flex-wrap justify-between items-center mb-6 p-5 bg-blue-950/80 rounded-xl shadow-lg backdrop-blur-sm border border-blue-800">
         <div className="flex items-center text-lg text-white mb-2 sm:mb-0">
           <span className="font-semibold mr-2">Balance:</span>
@@ -268,19 +250,19 @@ const Plinko = () => {
         )}
       </div>
       
-      {/* Controls */}
       <div className="flex flex-col sm:flex-row w-full justify-between items-center mb-6 gap-4">
         <div className="flex items-center text-white">
           <label className="mr-3 font-medium">Bet Amount:</label>
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-300">₹</span>
             <input
-              type="number"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
               className="pl-8 pr-3 py-2 w-28 border border-blue-700 bg-blue-950/70 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
               value={bet}
               onChange={handleBetChange}
-              min={0}
-              max={10000}
+              placeholder="0"
               disabled={gameState === "dropping"}
             />
           </div>
@@ -301,21 +283,20 @@ const Plinko = () => {
         </button>
       </div>
       
-      {/* Game message */}
       <p className={`text-lg mb-6 font-medium px-4 py-2 rounded-lg ${
-        message.includes("Insufficient") || message.includes("must be greater") ? "bg-red-900/50 text-red-300" : 
-        message.includes("won") ? "bg-green-900/50 text-green-300" : 
-        "bg-blue-900/50 text-blue-200"
+        message.includes("Insufficient") || message.includes("Please enter") || message.includes("must be greater") 
+          ? "bg-red-900/50 text-red-300" 
+          : message.includes("won") 
+            ? "bg-green-900/50 text-green-300" 
+            : "bg-blue-900/50 text-blue-200"
       }`}>
         {message}
       </p>
       
-      {/* Plinko board */}
       <div 
         ref={boardRef}
         className="relative w-full h-[32rem] bg-gradient-to-b from-blue-950 to-blue-900 rounded-2xl shadow-inner overflow-hidden border-2 border-blue-700/50"
       >
-        {/* Fixed drop position indicator */}
         {gameState !== "dropping" && (
           <motion.div 
             className="absolute w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-red-600 z-30 shadow-lg"
@@ -328,7 +309,6 @@ const Plinko = () => {
           />
         )}
         
-        {/* Pegs */}
         {pegs.map((peg, index) => (
           <motion.div
             key={index}
@@ -346,7 +326,6 @@ const Plinko = () => {
           />
         ))}
         
-        {/* Ball animation */}
         <AnimatePresence>
           {ballPath.length > 0 && (
             <motion.div
@@ -380,7 +359,6 @@ const Plinko = () => {
           )}
         </AnimatePresence>
         
-        {/* Slot containers at bottom */}
         <div className="absolute bottom-0 w-full flex justify-between h-12">
           {CONFIG.slots.map((multiplier, index) => (
             <motion.div
@@ -402,7 +380,6 @@ const Plinko = () => {
           ))}
         </div>
         
-        {/* Decorative elements */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-blue-900/80 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-blue-900/80 to-transparent" />
