@@ -201,16 +201,16 @@ const MatchOdds: React.FC<MatchOddsProps> = ({
         <div className="text-black">
           <div className="bg-emerald-800 text-white font-semibold px-4 py-3 rounded-t-md">BOOKMAKER</div>
           <div className="text-xs text-gray-600 mt-2 mb-2 px-1">Min:100 Max:100k</div>
-          <div className="grid grid-cols-6 bg-gray-200 text-xs font-bold text-center">
-            <span className="col-span-2 py-2">Teams</span>
+          <div className="grid grid-cols-6  bg-gray-200 text-xs font-bold text-center">
+            <span className="col-span-2 py-2 ">Teams</span>
             <span className="py-2">BACK</span>
             <span className="py-2">LAY</span>
             <span className="py-2">-</span>
             <span className="py-2">-</span>
           </div>
           {bookmakerOdds.map((team, i) => (
-            <div key={i} className="grid grid-cols-6 border-t text-black text-center text-sm">
-              <div className="col-span-2 py-2 text-left px-3 font-medium">{team.team}</div>
+            <div key={i} className="grid grid-cols-4 border-t text-black text-center text-sm">
+              <div className="col-span-2 py-2  text-left px-3 font-medium">{team.team}</div>
               <div 
                 className="bg-blue-400 py-2 font-semibold cursor-pointer hover:bg-blue-500 transition duration-200"
                 onClick={() => {
@@ -248,7 +248,7 @@ const MatchOdds: React.FC<MatchOddsProps> = ({
             <span className="py-2">-</span>
           </div>
           {tossOdds.map((team, i) => (
-            <div key={i} className="grid grid-cols-5 border-t text-center text-sm">
+            <div key={i} className="grid grid-cols-4 border-t text-center text-sm">
               <div className="col-span-2 py-2 text-left px-3 font-medium">{team.team}</div>
               <div 
                 className="bg-blue-200 py-2 font-semibold cursor-pointer hover:bg-blue-300 transition duration-200"
