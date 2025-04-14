@@ -15,61 +15,59 @@ interface PlayerRunsCardProps {
 
 const PlayerRunsCard: React.FC<PlayerRunsCardProps> = ({ heading, players }) => {
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null);
-  const [selectedOdds, setSelectedOdds] = useState<string | null>(null);
-  const [betAmount, setBetAmount] = useState("");
+  const [selectedOdds, setSelectedOdds] = useState<string>("");
+  const [amount, setAmount] = useState<number>(100);
 
   const handleOddsClick = (playerName: string, odds: string) => {
+    const cleanOdds = odds.replace(/^:/, "");
     setSelectedPlayer(playerName);
-    setSelectedOdds(odds.replace(/^:/, ""));
-    setBetAmount("");
+    setSelectedOdds(cleanOdds);
+  };
+
+  const closeModal = () => {
+    setSelectedPlayer(null);
+    setAmount(100);
+    setSelectedOdds("");
   };
 
   const handlePlaceBet = () => {
-    console.log(`Bet ₹${betAmount} on ${selectedPlayer} at odds ${selectedOdds}`);
-    setSelectedPlayer(null);
-    setSelectedOdds(null);
-    setBetAmount("");
-  };
-
-  const handleCancel = () => {
-    setSelectedPlayer(null);
-    setSelectedOdds(null);
-    setBetAmount("");
+    console.log(`Placed bet on ${selectedPlayer} with odds ${selectedOdds} and amount ${amount}`);
+    closeModal();
   };
 
   return (
-    <div className="bg-white shadow-md rounded-lg w-full overflow-hidden border border-gray-200">
-      {/* Heading */}
-      <div className="bg-yellow-100 px-4 py-3 text-left font-semibold text-gray-800 border-b border-gray-300">
-        {heading}
-      </div>
+    <>
+      <div className="bg-white shadow-md rounded-lg w-full overflow-hidden border border-gray-200">
+        {/* Heading */}
+        <div className="bg-yellow-100 px-4 py-3 text-left font-semibold text-gray-800 border-b border-gray-300">
+          {heading}
+        </div>
 
-      {/* Table Header */}
-      <div className="grid grid-cols-4 text-center text-sm font-semibold border-b border-gray-300">
-        <div className="text-left px-4 py-2 col-span-2 bg-gray-50">Player</div>
-        <div className="bg-yellow-500 text-white py-2">Runs</div>
-        <div className="bg-blue-500 text-white py-2">Odds</div>
-      </div>
+        {/* Table Header */}
+        <div className="grid grid-cols-4 text-center text-sm font-semibold border-b border-gray-300">
+          <div className="text-left px-4 py-2 col-span-2 bg-gray-50">Player</div>
+          <div className="bg-yellow-500 text-white py-2">Runs</div>
+          <div className="bg-blue-500 text-white py-2">Odds</div>
+        </div>
 
-      {/* Player Rows */}
-      {players.map((player, index) => (
-        <div
-          key={index}
-          className="grid grid-cols-4 items-start text-center border-b border-gray-100"
-        >
-          {/* Name */}
-          <div className="text-left px-4 py-3 text-sm font-medium text-gray-700 col-span-2 bg-white capitalize">
-            {player.name}
-          </div>
+        {/* Player Rows */}
+        {players.map((player, index) => (
+          <div
+            key={index}
+            className="grid grid-cols-4 items-center text-center border-b border-gray-100"
+          >
+            {/* Name */}
+            <div className="text-left px-4 py-3 text-sm font-medium text-gray-700 col-span-2 bg-white capitalize">
+              {player.name}
+            </div>
 
-          {/* Runs */}
-          <div className="py-3 bg-yellow-50 text-yellow-700 font-semibold">
-            {player.runs}
-          </div>
+            {/* Runs */}
+            <div className="py-3 bg-yellow-50 text-yellow-700 font-semibold">
+              {player.runs}
+            </div>
 
-          {/* Odds + Inline Input */}
-          <div className="py-3 bg-gray-50 flex flex-col items-center gap-2 px-2">
-            <div className="flex flex-wrap justify-center gap-2">
+            {/* Odds */}
+            <div className="py-3 bg-gray-50 flex flex-wrap justify-center gap-2 px-2">
               {player.buttons.map((btn, i) => (
                 <button
                   key={i}
@@ -80,46 +78,64 @@ const PlayerRunsCard: React.FC<PlayerRunsCardProps> = ({ heading, players }) => 
                 </button>
               ))}
             </div>
+          </div>
+        ))}
+      </div>
 
-            {selectedPlayer === player.name && selectedOdds && (
-              <div className="w-full text-left mt-2 space-y-2">
-                <p className="text-xs text-gray-600 pl-1">
-                  Placing bet on <strong>{selectedPlayer}</strong> at odds <strong>{selectedOdds}</strong>
-                </p>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <div className="relative w-full">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
-                    <input
-                      type="number"
-                      min="1"
-                      value={betAmount}
-                      onChange={(e) => setBetAmount(e.target.value)}
-                      placeholder="Enter amount"
-                      className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                    />
-                  </div>
-                  <div className="flex gap-2 w-full">
-                    <button
-                      onClick={handleCancel}
-                      className="flex-1 bg-gray-100 text-gray-800 px-3 py-2 rounded-md hover:bg-gray-200 text-sm font-medium"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handlePlaceBet}
-                      disabled={!betAmount}
-                      className="flex-1 bg-blue-600 text-white px-3 py-2 rounded-md hover:bg-blue-700 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Place Bet
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
+      {/* Modal */}
+      {selectedPlayer && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-pink-100 rounded-lg shadow-xl w-[90%] max-w-md p-6 relative">
+            <button
+              onClick={closeModal}
+              className="absolute top-2 right-2 text-lg font-bold text-gray-700 hover:text-red-600"
+            >
+              ×
+            </button>
+            <h2 className="text-lg font-semibold mb-4 text-center text-red-900">Place Bet</h2>
+            <div className="text-sm text-gray-700 mb-2">Player: <span className="font-medium">{selectedPlayer}</span></div>
+            <div className="text-sm text-gray-700 mb-4">Odds: <span className="font-medium">{selectedOdds}</span></div>
+
+            <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+            <input
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(Number(e.target.value))}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+              min={100}
+              max={200000}
+            />
+
+            <div className="grid grid-cols-4 gap-2 mb-4">
+              {[1000, 2000, 5000, 10000, 20000, 25000, 50000, 75000, 90000, 95000].map((val) => (
+                <button
+                  key={val}
+                  onClick={() => setAmount(amount + val)}
+                  className="bg-orange-300 text-white py-2 rounded font-semibold text-sm hover:bg-orange-400"
+                >
+                  +{val / 1000}k
+                </button>
+              ))}
+            </div>
+
+            <div className="flex justify-between gap-3">
+              <button
+                onClick={handlePlaceBet}
+                className="bg-green-600 text-white w-full py-2 rounded hover:bg-green-700 font-semibold"
+              >
+                Place Bet
+              </button>
+              <button
+                onClick={closeModal}
+                className="bg-red-500 text-white w-full py-2 rounded hover:bg-red-600 font-semibold"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
-      ))}
-    </div>
+      )}
+    </>
   );
 };
 

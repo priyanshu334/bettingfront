@@ -11,8 +11,9 @@ interface Stat {
 
 interface Bet {
   title: string;
-  odds: number;
+  odds: number | string;
   amount: number;
+  selectedTeam: 'pink' | 'blue';
 }
 
 const statsData: Stat[] = [
@@ -37,28 +38,39 @@ const statsData: Stat[] = [
   { title: "Most Ducks by Team", pink: 9, blue: 7, total: "16 (Season Total)" },
   { title: "Total Wides in IPL", pink: 865, blue: 895, total: "314" },
 ];
-
 const IPLStatsPage: React.FC = () => {
   const [showDialog, setShowDialog] = useState<boolean>(false);
   const [selectedBet, setSelectedBet] = useState<Stat | null>(null);
-  const [odds, setOdds] = useState<number>(1);
+  const [selectedTeam, setSelectedTeam] = useState<'pink' | 'blue'>('pink');
   const [amount, setAmount] = useState<number>(0);
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
 
   const handlePlaceBet = (): void => {
-    if (selectedBet) {
+    if (selectedBet && amount > 0) {
       const betData: Bet = {
         title: selectedBet.title,
-        odds,
+        odds: selectedTeam === 'pink' ? selectedBet.pink : selectedBet.blue,
         amount,
+        selectedTeam
       };
       console.log("Placed bet:", betData);
-      setShowDialog(false);
+      resetBetState();
       setShowConfirmation(true);
-
-      // Hide after 3 seconds
       setTimeout(() => setShowConfirmation(false), 3000);
     }
+  };
+
+  const openBetDialog = (item: Stat, team: 'pink' | 'blue') => {
+    setSelectedBet(item);
+    setSelectedTeam(team);
+    setAmount(0); // Reset amount when opening new bet
+    setShowDialog(true);
+  };
+
+  const resetBetState = () => {
+    setShowDialog(false);
+    setSelectedBet(null);
+    setAmount(0);
   };
 
   return (
@@ -76,20 +88,14 @@ const IPLStatsPage: React.FC = () => {
             </div>
             <div
               className="col-span-1 p-3 bg-pink-100 font-semibold cursor-pointer"
-              onClick={() => {
-                setSelectedBet(item);
-                setShowDialog(true);
-              }}
+              onClick={() => openBetDialog(item, 'pink')}
             >
               <div className="text-base">{item.pink}</div>
               <div className="text-xs text-gray-600">100</div>
             </div>
             <div
               className="col-span-1 p-3 bg-blue-100 font-semibold cursor-pointer"
-              onClick={() => {
-                setSelectedBet(item);
-                setShowDialog(true);
-              }}
+              onClick={() => openBetDialog(item, 'blue')}
             >
               <div className="text-base">{item.blue}</div>
               <div className="text-xs text-gray-600">100</div>
@@ -104,7 +110,7 @@ const IPLStatsPage: React.FC = () => {
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
           <div className="bg-pink-200 border-t-[6px] border-orange-700 rounded-xl p-5 w-[400px] shadow-lg space-y-4 relative">
             <button
-              onClick={() => setShowDialog(false)}
+              onClick={resetBetState}
               className="absolute top-2 right-3 text-white bg-red-500 rounded-full px-2 text-sm"
             >
               ✕
@@ -112,22 +118,21 @@ const IPLStatsPage: React.FC = () => {
 
             <h2 className="text-xl font-semibold text-orange-900">Place Bet</h2>
             <p className="text-sm font-medium text-black">{selectedBet.title}</p>
+            
+            <div className={`p-2 rounded-md ${selectedTeam === 'pink' ? 'bg-pink-100' : 'bg-blue-100'}`}>
+              <p className="font-bold">
+                {selectedTeam === 'pink' ? 'Pink' : 'Blue'}: {selectedTeam === 'pink' ? selectedBet.pink : selectedBet.blue}
+              </p>
+            </div>
 
-            {/* Odds and Amount */}
-            <div className="grid grid-cols-2 gap-2 items-center">
+            <div>
               <input
                 type="number"
-                value={odds}
-                onChange={(e) => setOdds(parseInt(e.target.value))}
-                className="p-2 rounded-md bg-white w-full"
-                placeholder="Odds"
-              />
-              <input
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(parseInt(e.target.value))}
+                value={amount || ''}
+                onChange={(e) => setAmount(Number(e.target.value) || 0)}
                 className="p-2 rounded-md bg-white w-full"
                 placeholder="Amount"
+                min="100"
               />
             </div>
 
@@ -136,7 +141,7 @@ const IPLStatsPage: React.FC = () => {
               {[1000, 2000, 5000, 10000, 20000, 25000, 50000, 75000, 90000, 95000].map((val) => (
                 <button
                   key={val}
-                  onClick={() => setAmount(amount + val)}
+                  onClick={() => setAmount(prev => prev + val)}
                   className="bg-orange-400 hover:bg-orange-500 text-white py-1 rounded text-sm"
                 >
                   +{val / 1000}k
@@ -149,17 +154,15 @@ const IPLStatsPage: React.FC = () => {
             {/* Actions */}
             <div className="flex justify-between items-center">
               <button
-                onClick={() => {
-                  setAmount(0);
-                  setOdds(1);
-                }}
+                onClick={() => setAmount(0)}
                 className="text-blue-700 underline text-sm"
               >
                 Clear
               </button>
               <button
                 onClick={handlePlaceBet}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+                disabled={amount <= 0}
+                className={`px-4 py-2 rounded ${amount > 0 ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-400 cursor-not-allowed text-gray-200'}`}
               >
                 Place Bet
               </button>

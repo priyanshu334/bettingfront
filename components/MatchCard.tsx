@@ -1,6 +1,157 @@
-import React from "react";
+import React, { useState } from "react";
 
-const MatchOdds = () => {
+type TeamOdds = {
+  team: string;
+  back: string;
+  lay: string;
+  stake: string;
+};
+
+type BookmakerOdds = {
+  team: string;
+  back: string;
+  lay: string;
+  stake: string;
+};
+
+type TossOdds = {
+  team: string;
+  back: string;
+  lay: string;
+  stake: string;
+};
+
+type WinPrediction = {
+  team: string;
+  odds: string;
+};
+
+type MatchOddsProps = {
+  matchOdds: TeamOdds[];
+  bookmakerOdds: BookmakerOdds[];
+  tossOdds: TossOdds[];
+  winPrediction: WinPrediction[];
+};
+
+const BetDialog: React.FC<{
+  title: string;
+  currentStake: string;
+  onClose: () => void;
+  onPlaceBet: (amount: string) => void;
+}> = ({ title, currentStake, onClose, onPlaceBet }) => {
+  const [amount, setAmount] = useState(currentStake);
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAmount(e.target.value);
+  };
+
+  const handleQuickAmountAdd = (value: number) => {
+    setAmount(prev => {
+      const currentAmount = parseInt(prev) || 0;
+      return (currentAmount + value).toString();
+    });
+  };
+
+  const handleClear = () => {
+    setAmount("0");
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center text-black justify-center z-50">
+      <div className="w-full max-w-md rounded overflow-hidden">
+        {/* Header */}
+        <div className="bg-orange-700 text-white p-4 flex justify-between items-center">
+          <h2 className="text-2xl font-bold">Place Bet</h2>
+          <button onClick={onClose} className="text-white text-3xl">&times;</button>
+        </div>
+        
+        {/* Content */}
+        <div className="bg-pink-200 p-4">
+          {/* Bet Title and Profit */}
+          <div className="flex justify-between mb-4">
+           
+            <div className="text-xl">Profit: 0</div>
+          </div>
+          
+          {/* Odds and Amount inputs */}
+          <div className="flex justify-between mb-4">
+            <div className="w-1/2 pr-2">
+              <div className="text-xl mb-2">Odds</div>
+              <input 
+                type="text" 
+                value="67"
+                readOnly
+                className="w-full p-2 border border-gray-300 rounded bg-white"
+              />
+            </div>
+            <div className="w-1/2 pl-2">
+              <div className="text-xl mb-2">Amount</div>
+              <input 
+                type="text" 
+                value={amount}
+                onChange={handleAmountChange}
+                className="w-full p-2 border border-gray-300 rounded"
+              />
+            </div>
+          </div>
+          
+          {/* Quick amount buttons */}
+          <div className="grid grid-cols-4 gap-1 mb-4">
+            <button onClick={() => handleQuickAmountAdd(1000)} className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded text-lg">+1k</button>
+            <button onClick={() => handleQuickAmountAdd(2000)} className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded text-lg">+2k</button>
+            <button onClick={() => handleQuickAmountAdd(5000)} className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded text-lg">+5k</button>
+            <button onClick={() => handleQuickAmountAdd(10000)} className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded text-lg">+10k</button>
+          </div>
+          
+          <div className="grid grid-cols-4 gap-1 mb-4">
+            <button onClick={() => handleQuickAmountAdd(20000)} className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded text-lg">+20k</button>
+            <button onClick={() => handleQuickAmountAdd(25000)} className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded text-lg">+25k</button>
+            <button onClick={() => handleQuickAmountAdd(50000)} className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded text-lg">+50k</button>
+            <button onClick={() => handleQuickAmountAdd(75000)} className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded text-lg">+75k</button>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-1 mb-6">
+            <button onClick={() => handleQuickAmountAdd(90000)} className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded text-lg">+90k</button>
+            <button onClick={() => handleQuickAmountAdd(95000)} className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded text-lg">+95k</button>
+          </div>
+          
+          {/* Action buttons */}
+          <div className="grid grid-cols-2 gap-1 mb-4">
+            <button onClick={handleClear} className="bg-blue-500 text-white py-3 text-xl font-bold">Clear</button>
+            <button 
+              onClick={() => onPlaceBet(amount)}
+              className="bg-green-700 hover:bg-green-800 text-white py-3 text-xl font-bold"
+            >
+              Place Bet
+            </button>
+          </div>
+          
+          {/* Range information */}
+          <div className="mb-2 text-lg">Range: 100 to 2L</div>
+          
+          {/* Progress bar (simplified visual element) */}
+          <div className="w-full h-4 bg-pink-100 rounded"></div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const MatchOdds: React.FC<MatchOddsProps> = ({ 
+  matchOdds, 
+  bookmakerOdds, 
+  tossOdds, 
+  winPrediction 
+}) => {
+  const [showBetDialog, setShowBetDialog] = useState(false);
+  const [currentBetTitle, setCurrentBetTitle] = useState("");
+  const [currentStake, setCurrentStake] = useState("");
+
+  const handlePlaceBet = (amount: string) => {
+    console.log(`Placing bet: ${amount} on ${currentBetTitle}`);
+    // Here you would typically send the bet to your backend
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center w-full bg-gray-100">
       <div className="p-4 space-y-6 text-sm bg-gray-50 font-sans shadow-lg rounded-lg w-full">
@@ -19,24 +170,31 @@ const MatchOdds = () => {
             <span className="py-2">BACK</span>
             <span className="py-2">LAY</span>
           </div>
-          <div className="grid grid-cols-4 border-t text-center text-sm">
-            <div className="col-span-2 py-2 px-3 text-left font-medium">Royal Challengers Bengaluru</div>
-            <div className="bg-blue-400 py-2 font-semibold">
-              1.82<br /><span className="text-xs text-gray-700">100</span>
+          {matchOdds.map((team, i) => (
+            <div key={i} className="grid grid-cols-4 border-t text-center text-sm">
+              <div className="col-span-2 py-2 px-3 text-left font-medium">{team.team}</div>
+              <div 
+                className="bg-blue-400 py-2 font-semibold cursor-pointer hover:bg-blue-500 transition duration-200"
+                onClick={() => {
+                  setCurrentBetTitle(`Match Odds - ${team.team} (BACK)`);
+                  setCurrentStake(team.stake);
+                  setShowBetDialog(true);
+                }}
+              >
+                {team.back}<br /><span className="text-xs text-gray-700">{team.stake}</span>
+              </div>
+              <div 
+                className="bg-red-400 py-2 font-semibold cursor-pointer hover:bg-red-500 transition duration-200"
+                onClick={() => {
+                  setCurrentBetTitle(`Match Odds - ${team.team} (LAY)`);
+                  setCurrentStake(team.stake);
+                  setShowBetDialog(true);
+                }}
+              >
+                {team.lay}<br /><span className="text-xs text-gray-700">{team.stake}</span>
+              </div>
             </div>
-            <div className="bg-red-400 py-2 font-semibold">
-              1.83<br /><span className="text-xs text-gray-700">100</span>
-            </div>
-          </div>
-          <div className="grid grid-cols-4 border-t text-center text-sm">
-            <div className="col-span-2 py-2 px-3 text-left font-medium">Delhi Capitals</div>
-            <div className="bg-blue-400 py-2 font-semibold">
-              2.2<br /><span className="text-xs text-gray-700">100</span>
-            </div>
-            <div className="bg-red-400 py-2 font-semibold">
-              2.22<br /><span className="text-xs text-gray-700">100</span>
-            </div>
-          </div>
+          ))}
         </div>
 
         {/* Bookmaker Section */}
@@ -50,20 +208,33 @@ const MatchOdds = () => {
             <span className="py-2">-</span>
             <span className="py-2">-</span>
           </div>
-          <div className="grid grid-cols-6 border-t text-black text-center text-sm">
-            <div className="col-span-2 py-2 text-left px-3 font-medium">Royal Challengers ...</div>
-            <div className="bg-blue-400 py-2 font-semibold">83<br /><span className="text-xs text-gray-700">100</span></div>
-            <div className="bg-red-400 py-2 font-semibold">86<br /><span className="text-xs text-gray-700">100</span></div>
-            <span className="py-2">-</span>
-            <span className="py-2">-</span>
-          </div>
-          <div className="grid grid-cols-6 border-t text-center text-sm">
-            <div className="col-span-2 py-2 text-left px-3 font-medium">Delhi Capitals</div>
-            <div className="bg-blue-400 py-2 font-semibold">115<br /><span className="text-xs text-gray-700">100</span></div>
-            <div className="bg-red-400 py-2 font-semibold">121<br /><span className="text-xs text-gray-700">100</span></div>
-            <span className="py-2">-</span>
-            <span className="py-2">-</span>
-          </div>
+          {bookmakerOdds.map((team, i) => (
+            <div key={i} className="grid grid-cols-6 border-t text-black text-center text-sm">
+              <div className="col-span-2 py-2 text-left px-3 font-medium">{team.team}</div>
+              <div 
+                className="bg-blue-400 py-2 font-semibold cursor-pointer hover:bg-blue-500 transition duration-200"
+                onClick={() => {
+                  setCurrentBetTitle(`Bookmaker - ${team.team} (BACK)`);
+                  setCurrentStake(team.stake);
+                  setShowBetDialog(true);
+                }}
+              >
+                {team.back}<br /><span className="text-xs text-gray-700">{team.stake}</span>
+              </div>
+              <div 
+                className="bg-red-400 py-2 font-semibold cursor-pointer hover:bg-red-500 transition duration-200"
+                onClick={() => {
+                  setCurrentBetTitle(`Bookmaker - ${team.team} (LAY)`);
+                  setCurrentStake(team.stake);
+                  setShowBetDialog(true);
+                }}
+              >
+                {team.lay}<br /><span className="text-xs text-gray-700">{team.stake}</span>
+              </div>
+              <span className="py-2">-</span>
+              <span className="py-2">-</span>
+            </div>
+          ))}
         </div>
 
         {/* Toss Section */}
@@ -76,18 +247,32 @@ const MatchOdds = () => {
             <span className="py-2">LAY</span>
             <span className="py-2">-</span>
           </div>
-          <div className="grid grid-cols-5 border-t text-center text-sm">
-            <div className="col-span-2 py-2 text-left px-3 font-medium">Royal Challengers ...</div>
-            <div className="bg-blue-200 py-2 font-semibold">98<br /><span className="text-xs text-gray-700">100</span></div>
-            <div className="bg-red-200 py-2 font-semibold">0<br /><span className="text-xs text-gray-700">0.0</span></div>
-            <span className="py-2">-</span>
-          </div>
-          <div className="grid grid-cols-5 border-t text-center text-sm">
-            <div className="col-span-2 py-2 text-left px-3 font-medium">Delhi Capitals</div>
-            <div className="bg-blue-200 py-2 font-semibold">98<br /><span className="text-xs text-gray-700">100</span></div>
-            <div className="bg-red-200 py-2 font-semibold">0<br /><span className="text-xs text-gray-700">0.0</span></div>
-            <span className="py-2">-</span>
-          </div>
+          {tossOdds.map((team, i) => (
+            <div key={i} className="grid grid-cols-5 border-t text-center text-sm">
+              <div className="col-span-2 py-2 text-left px-3 font-medium">{team.team}</div>
+              <div 
+                className="bg-blue-200 py-2 font-semibold cursor-pointer hover:bg-blue-300 transition duration-200"
+                onClick={() => {
+                  setCurrentBetTitle(`Toss - ${team.team} (BACK)`);
+                  setCurrentStake(team.stake);
+                  setShowBetDialog(true);
+                }}
+              >
+                {team.back}<br /><span className="text-xs text-gray-700">{team.stake}</span>
+              </div>
+              <div 
+                className="bg-red-200 py-2 font-semibold cursor-pointer hover:bg-red-300 transition duration-200"
+                onClick={() => {
+                  setCurrentBetTitle(`Toss - ${team.team} (LAY)`);
+                  setCurrentStake(team.stake);
+                  setShowBetDialog(true);
+                }}
+              >
+                {team.lay}<br /><span className="text-xs text-gray-700">{team.stake}</span>
+              </div>
+              <span className="py-2">-</span>
+            </div>
+          ))}
         </div>
 
         {/* Win Prediction Section */}
@@ -95,16 +280,32 @@ const MatchOdds = () => {
           <div className="bg-emerald-800 text-white font-semibold px-4 py-3 rounded-t-md">Who will Win the Match?</div>
           <div className="text-xs text-gray-600 mt-2 mb-2 px-1">Min: - Max: 1</div>
           <div className="grid grid-cols-2 gap-4 text-center mt-3">
-            <div className="bg-blue-200 p-4 rounded shadow-md hover:shadow-lg transition duration-200">
-              <div className="font-semibold text-sm mb-1">Royal Challengers Bengaluru</div>
-              <div className="text-2xl font-bold text-blue-800">1.81</div>
-            </div>
-            <div className="bg-blue-200 p-4 rounded shadow-md hover:shadow-lg transition duration-200">
-              <div className="font-semibold text-sm mb-1">Delhi Capitals</div>
-              <div className="text-2xl font-bold text-blue-800">2.14</div>
-            </div>
+            {winPrediction.map((item, i) => (
+              <div 
+                key={i} 
+                className="bg-blue-200 p-4 rounded shadow-md hover:shadow-lg transition duration-200 cursor-pointer"
+                onClick={() => {
+                  setCurrentBetTitle(`Win Prediction - ${item.team}`);
+                  setCurrentStake("100"); // Default stake for win prediction
+                  setShowBetDialog(true);
+                }}
+              >
+                <div className="font-semibold text-sm mb-1">{item.team}</div>
+                <div className="text-2xl font-bold text-blue-800">{item.odds}</div>
+              </div>
+            ))}
           </div>
         </div>
+
+        {/* Bet Dialog */}
+        {showBetDialog && (
+          <BetDialog
+            title={currentBetTitle}
+            currentStake={currentStake}
+            onClose={() => setShowBetDialog(false)}
+            onPlaceBet={handlePlaceBet}
+          />
+        )}
       </div>
     </div>
   );

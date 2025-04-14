@@ -5,41 +5,83 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner'; // or your preferred toast library
 
 const LoginPage = () => {
   const router = useRouter();
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    phone: '',
+    password: ''
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const setAuthCookie = (token: string, remember: boolean) => {
+    const cookieOptions = [
+      `token=${token}`,
+      'Path=/',
+      'SameSite=Lax',
+      'Secure',
+      process.env.NODE_ENV === 'production' ? 'HttpOnly' : '',
+      remember ? `Max-Age=${30 * 24 * 60 * 60}` : '' // 30 days if remember me is checked
+    ].filter(Boolean).join('; ');
+    
+    document.cookie = cookieOptions;
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, password }),
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        credentials: 'include', // Important for httpOnly cookies
+        body: JSON.stringify(formData),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.message || 'Login failed');
-        setLoading(false);
-        return;
+        throw new Error(data.message || 'Login failed. Please check your credentials.');
       }
 
-      localStorage.setItem('token', data.token);
-      // Redirect user to dashboard or home
-      router.push('/');
-    } catch (err) {
-      setError('Something went wrong. Please try again.');
-      console.error(err);
+      if (!data.token) {
+        throw new Error('Authentication token not received');
+      }
+
+      // Set cookie with secure options
+      setAuthCookie(data.token, rememberMe);
+
+      // Store user data (excluding sensitive info) in session storage
+      if (data.user) {
+        sessionStorage.setItem('user', JSON.stringify({
+          id: data.user.id,
+          name: data.user.name,
+          phone: data.user.phone,
+          role: data.user.role
+        }));
+      }
+
+      toast.success('Login successful! Redirecting...');
+      router.push('/dashboard'); // Or your preferred redirect route
+
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.error(error instanceof Error ? error.message : 'An unexpected error occurred');
     } finally {
       setLoading(false);
     }
@@ -52,23 +94,24 @@ const LoginPage = () => {
           <div className="w-20 h-20 bg-orange-100 rounded-full mb-4 flex items-center justify-center shadow-md">
             <span className="text-3xl text-orange-600">SE</span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold text-orange-700">Samrat Online booking</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-orange-700">Samrat Online Booking</h1>
         </div>
 
-        <h2 className="text-lg font-bold text-center mb-6 flex items-center justify-center gap-2">
-          <span className="text-xl"></span> Login to your account
-        </h2>
+        <h2 className="text-lg font-bold text-center mb-6">Login to your account</h2>
 
         <form onSubmit={handleLogin} className="space-y-5">
           <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden hover:border-orange-400 focus-within:ring-2 focus-within:ring-orange-300 focus-within:border-orange-400 transition-all">
-            <span className="px-3 text-gray-600">👤</span>
+            <span className="px-3 text-gray-600">📱</span>
             <Input 
-              type="text" 
+              type="tel" 
+              name="phone"
               placeholder="Phone Number"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              value={formData.phone}
+              onChange={handleChange}
               className="w-full py-3 px-3 focus:outline-none border-0" 
               required
+              pattern="[0-9]{10}"
+              title="Please enter a 10-digit phone number"
             />
           </div>
 
@@ -76,11 +119,13 @@ const LoginPage = () => {
             <span className="px-3 text-gray-600">🔒</span>
             <Input 
               type={showPassword ? "text" : "password"} 
+              name="password"
               placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={formData.password}
+              onChange={handleChange}
               className="w-full py-3 px-3 focus:outline-none border-0"
-              required 
+              required
+              minLength={6}
             />
             <Button 
               type="button" 
@@ -88,6 +133,7 @@ const LoginPage = () => {
               size="icon" 
               className="px-3 text-gray-600 hover:text-orange-700"
               onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? '👁️‍🗨️' : '👁️'}
             </Button>
@@ -95,24 +141,32 @@ const LoginPage = () => {
 
           <div className="flex items-center justify-between text-sm flex-wrap gap-2">
             <label className="flex items-center cursor-pointer">
-              <Checkbox className="mr-2 text-orange-600 border-gray-400" /> 
+              <Checkbox 
+                checked={rememberMe}
+                onCheckedChange={() => setRememberMe(!rememberMe)}
+                className="mr-2 text-orange-600 border-gray-400" 
+              /> 
               <span className="text-gray-700">Remember me</span>
             </label>
-            <a href="#" className="text-orange-700 hover:text-orange-500 hover:underline font-medium">Forgot Password?</a>
+            <a href="/forgot-password" className="text-orange-700 hover:text-orange-500 hover:underline font-medium">
+              Forgot Password?
+            </a>
           </div>
-
-          {error && (
-            <div className="text-sm text-red-600 font-medium text-center">
-              {error}
-            </div>
-          )}
 
           <Button 
             type="submit" 
-            className="w-full bg-orange-700 hover:bg-orange-600 text-white py-3 rounded-lg font-bold text-lg shadow-md transition-colors"
+            className="w-full bg-orange-700 hover:bg-orange-600 text-white py-3 rounded-lg font-bold text-lg shadow-md transition-colors disabled:opacity-70"
             disabled={loading}
           >
-            {loading ? 'Logging in...' : 'LOGIN'}
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Logging in...
+              </span>
+            ) : 'LOGIN'}
           </Button>
         </form>
 
@@ -131,7 +185,10 @@ const LoginPage = () => {
         </div>
 
         <div className="mt-6 text-center text-gray-500 text-sm">
-          Don't have an account? <a href="#" className="text-orange-700 hover:underline font-medium">Sign up</a>
+          Don't have an account?{' '}
+          <a href="/register" className="text-orange-700 hover:underline font-medium">
+            Sign up
+          </a>
         </div>
       </div>
     </div>
