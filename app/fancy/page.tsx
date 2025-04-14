@@ -22,8 +22,8 @@ const statsData: Stat[] = [
   { title: "Tournament topBatsman Runs in IPL", pink: 140, blue: 150, total: "" },
   { title: "Highest Runs Scorer", pink: 730, blue: 765, total: "" },
   { title: "Highest Partnership Runs in IPL", pink: 166, blue: 174, total: "" },
-  { title: "Highest Wicket Taker IPL", pink: 48, blue: 53, total: "" },
-  { title: "How many times 5 or More wickets taken by a Bowler", pink: 84, blue: 90, total: "" },
+  { title: "Highest Wicket Taker IPL", pink: 27, blue: 29, total: "" },
+  { title: "How many times 5 or More wickets taken by a Bowler", pink: 5, blue: 4, total: "" },
   { title: "Fastest 50 of IPL", pink: 15, blue: 17, total: "" },
   { title: "Total 4's in IPL", pink: 2215, blue: 2255, total: "" },
   { title: "Total 6's in IPL", pink: 1300, blue: 1345, total: "" },
@@ -36,7 +36,7 @@ const statsData: Stat[] = [
   { title: "Total Wickets in IPL", pink: 925, blue: 995, total: "" },
   { title: "Total Wides in IPL", pink: 865, blue: 895, total: "" },
   { title: "Total LWB's in IPL", pink: 44, blue: 49, total: "" },
-  { title: "Most Ducks by Team", pink: 84, blue: 90, total: "" },
+  { title: "Most Ducks by Team", pink: 47, blue: 54, total: "" },
   { title: "Total Runout's in IPL", pink: 84, blue: 90, total: "" },
 ];
 const IPLStatsPage: React.FC = () => {
