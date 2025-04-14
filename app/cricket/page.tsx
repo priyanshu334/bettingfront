@@ -57,7 +57,6 @@ const IPLMatches = () => {
         }
   
         const data = await res.json();
-        console.log(data)
   
         if (!data?.data?.length) {
           throw new Error("No matches found");
@@ -88,7 +87,7 @@ const IPLMatches = () => {
             visitorTeamLogo: m.visitorteam?.image_path || '/team-placeholder.png',
             starting_at: m.starting_at,
             ending_at: m.ending_at
-          } satisfies FormattedMatch;
+          };
         });
         
         setMatches(formatted);
@@ -148,17 +147,6 @@ const IPLMatches = () => {
     return "from-gray-700 to-gray-900";
   };
 
-  // Separate matches into different categories
-  const activeMatches = matches.filter(match => {
-    const status = getMatchStatus(match);
-    return status.status === 'live' || status.status === 'upcoming';
-  });
-
-  const completedMatches = matches.filter(match => {
-    const status = getMatchStatus(match);
-    return status.status === 'completed';
-  });
-
   if (loading) {
     return (
       <div className="p-6 w-full bg-gradient-to-br from-orange-500 via-orange-500 to-orange-500 min-h-screen flex items-center justify-center">
@@ -191,182 +179,101 @@ const IPLMatches = () => {
         {matches.length === 0 ? (
           <div className="text-white text-center text-xl">No matches found</div>
         ) : (
-          <div className="space-y-8">
-            {/* Active Matches Section (Live + Upcoming) */}
-            {activeMatches.length > 0 && (
-              <div>
-                <h2 className="text-xl font-bold text-white mb-4">Matches</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {activeMatches.map((match) => {
-                    const status = getMatchStatus(match);
-                    const isLive = status.status === 'live';
-                    
-                    return (
-                      <Card
-                        key={match.id}
-                        onClick={() => router.push(`/matches/${match.id}`)}
-                        className={`cursor-pointer hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border-0 bg-gradient-to-br ${getTeamColors(match.match, status.status)}`}
-                      >
-                        <div className="absolute top-0 right-0 bg-black/30 text-white text-xs px-2 py-1 rounded-bl-md">
-                          Match #{match.id}
+          <div className="space-y-6">
+            <h2 className="text-xl font-bold text-white mb-4">All Matches</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {matches.map((match) => {
+                const status = getMatchStatus(match);
+                const isLive = status.status === 'live';
+                
+                return (
+                  <Card
+                    key={match.id}
+                    onClick={() => router.push(`/matches/${match.id}`)}
+                    className={`cursor-pointer hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border-0 bg-gradient-to-br ${getTeamColors(match.match, status.status)}`}
+                  >
+                    <div className="absolute top-0 right-0 bg-black/30 text-white text-xs px-2 py-1 rounded-bl-md">
+                      Match #{match.id}
+                    </div>
+                    {isLive && (
+                      <div className="absolute top-0 left-0 bg-red-500 text-white text-xs px-2 py-1 rounded-br-md animate-pulse">
+                        LIVE
+                      </div>
+                    )}
+                    <CardContent className="p-6 space-y-4">
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex flex-col items-center gap-2">
+                          <Image 
+                            src={match.localTeamLogo} 
+                            alt={match.localTeam} 
+                            width={40} 
+                            height={40} 
+                            className="rounded-full"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = '/team-placeholder.png';
+                            }}
+                          />
+                          <span className="text-white text-sm font-semibold text-center">{match.localTeam}</span>
                         </div>
-                        {isLive && (
-                          <div className="absolute top-0 left-0 bg-red-500 text-white text-xs px-2 py-1 rounded-br-md animate-pulse">
-                            LIVE
-                          </div>
+                        <span className="text-white font-bold">VS</span>
+                        <div className="flex flex-col items-center gap-2">
+                          <Image 
+                            src={match.visitorTeamLogo} 
+                            alt={match.visitorTeam} 
+                            width={40} 
+                            height={40} 
+                            className="rounded-full"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = '/team-placeholder.png';
+                            }}
+                          />
+                          <span className="text-white text-sm font-semibold text-center">{match.visitorTeam}</span>
+                        </div>
+                      </div>
+
+                      <div className="pt-3 border-t border-white/20">
+                        <div className="flex items-center text-gray-200 text-sm mb-1">
+                          <MdCalendarToday className="text-yellow-400 mr-2" />
+                          <span>{match.date}</span>
+                        </div>
+                        <div className="flex items-center text-gray-200 text-sm mb-1">
+                          <MdLocationOn className="text-yellow-400 mr-2" />
+                          <span>{match.venue}</span>
+                        </div>
+                        <div className={`flex items-center text-sm ${isLive ? 'text-red-300 font-bold' : 'text-green-300'}`}>
+                          <MdAccessTime className="text-yellow-400 mr-2" />
+                          {status.text}
+                        </div>
+                      </div>
+
+                      <div className="mt-4 flex justify-between items-center">
+                        {isLive ? (
+                          <button 
+                            className="text-xs bg-white/10 hover:bg-white/20 text-white px-3 py-1 rounded-full transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/matches/${match.id}/live`);
+                            }}
+                          >
+                            Watch Now
+                          </button>
+                        ) : (
+                          <span className="text-xs text-white/70">
+                            {status.status === 'completed' ? 'Match Completed' : 
+                             status.text.includes('remaining') ? 'Upcoming' : 'Starting Soon'}
+                          </span>
                         )}
-                        <CardContent className="p-6 space-y-4">
-                          <div className="flex items-center justify-between gap-4">
-                            <div className="flex flex-col items-center gap-2">
-                              <Image 
-                                src={match.localTeamLogo} 
-                                alt={match.localTeam} 
-                                width={40} 
-                                height={40} 
-                                className="rounded-full"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.src = '/team-placeholder.png';
-                                }}
-                              />
-                              <span className="text-white text-sm font-semibold text-center">{match.localTeam}</span>
-                            </div>
-                            <span className="text-white font-bold">VS</span>
-                            <div className="flex flex-col items-center gap-2">
-                              <Image 
-                                src={match.visitorTeamLogo} 
-                                alt={match.visitorTeam} 
-                                width={40} 
-                                height={40} 
-                                className="rounded-full"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.src = '/team-placeholder.png';
-                                }}
-                              />
-                              <span className="text-white text-sm font-semibold text-center">{match.visitorTeam}</span>
-                            </div>
-                          </div>
-
-                          <div className="pt-3 border-t border-white/20">
-                            <div className="flex items-center text-gray-200 text-sm mb-1">
-                              <MdCalendarToday className="text-yellow-400 mr-2" />
-                              <span>{match.date}</span>
-                            </div>
-                            <div className="flex items-center text-gray-200 text-sm mb-1">
-                              <MdLocationOn className="text-yellow-400 mr-2" />
-                              <span>{match.venue}</span>
-                            </div>
-                            <div className={`flex items-center text-sm ${isLive ? 'text-red-300 font-bold' : 'text-green-300'}`}>
-                              <MdAccessTime className="text-yellow-400 mr-2" />
-                              {status.text}
-                            </div>
-                          </div>
-
-                          <div className="mt-4 flex justify-between items-center">
-                            {isLive ? (
-                              <button 
-                                className="text-xs bg-white/10 hover:bg-white/20 text-white px-3 py-1 rounded-full transition-colors"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  router.push(`/matches/${match.id}/live`);
-                                }}
-                              >
-                                Watch Now
-                              </button>
-                            ) : (
-                              <span className="text-xs text-white/70">
-                                {status.text.includes('remaining') ? 'Upcoming' : 'Starting Soon'}
-                              </span>
-                            )}
-                            <button className="text-xs bg-white/10 hover:bg-white/20 text-white px-3 py-1 rounded-full transition-colors">
-                              {isLive ? 'View Details' : 'View Preview'}
-                            </button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Completed Matches Section */}
-            {completedMatches.length > 0 && (
-              <div>
-                <h2 className="text-xl font-bold text-white mb-4">Completed Matches</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {completedMatches.map((match) => {
-                    const status = getMatchStatus(match);
-                    return (
-                      <Card
-                        key={match.id}
-                        onClick={() => router.push(`/matches/${match.id}`)}
-                        className={`cursor-pointer hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border-0 bg-gradient-to-br ${getTeamColors(match.match, status.status)} opacity-80 hover:opacity-100`}
-                      >
-                        <div className="absolute top-0 right-0 bg-black/30 text-white text-xs px-2 py-1 rounded-bl-md">
-                          Match #{match.id}
-                        </div>
-                        <CardContent className="p-6 space-y-4">
-                          <div className="flex items-center justify-between gap-4">
-                            <div className="flex flex-col items-center gap-2">
-                              <Image 
-                                src={match.localTeamLogo} 
-                                alt={match.localTeam} 
-                                width={40} 
-                                height={40} 
-                                className="rounded-full"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.src = '/team-placeholder.png';
-                                }}
-                              />
-                              <span className="text-white text-sm font-semibold text-center">{match.localTeam}</span>
-                            </div>
-                            <span className="text-white font-bold">VS</span>
-                            <div className="flex flex-col items-center gap-2">
-                              <Image 
-                                src={match.visitorTeamLogo} 
-                                alt={match.visitorTeam} 
-                                width={40} 
-                                height={40} 
-                                className="rounded-full"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.src = '/team-placeholder.png';
-                                }}
-                              />
-                              <span className="text-white text-sm font-semibold text-center">{match.visitorTeam}</span>
-                            </div>
-                          </div>
-
-                          <div className="pt-3 border-t border-white/20">
-                            <div className="flex items-center text-gray-200 text-sm mb-1">
-                              <MdCalendarToday className="text-yellow-400 mr-2" />
-                              <span>{match.date}</span>
-                            </div>
-                            <div className="flex items-center text-gray-200 text-sm mb-1">
-                              <MdLocationOn className="text-yellow-400 mr-2" />
-                              <span>{match.venue}</span>
-                            </div>
-                            <div className="flex items-center text-gray-400 text-sm">
-                              <MdAccessTime className="text-yellow-400 mr-2" />
-                              {status.text}
-                            </div>
-                          </div>
-
-                          <div className="mt-4 flex justify-end">
-                            <button className="text-xs bg-white/10 hover:bg-white/20 text-white px-3 py-1 rounded-full transition-colors">
-                              View Results
-                            </button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+                        <button className="text-xs bg-white/10 hover:bg-white/20 text-white px-3 py-1 rounded-full transition-colors">
+                          View Details
+                        </button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>

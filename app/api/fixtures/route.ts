@@ -3,7 +3,8 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   const apiToken = process.env.SPORTMONKS_API_KEY; // keep your token safe
-  const url = `https://cricket.sportmonks.com/api/v2.0/fixtures?filter[season_id]=1689&filter[starts_between]=2025-04-07,2025-05-31&sort=starting_at&api_token=${apiToken}&include=localteam,visitorteam,venue`;
+  const url = `https://cricket.sportmonks.com/api/v2.0/fixtures?filter[season_id]=1689&filter[starts_between]=2025-04-07,2025-05-31&sort=starting_at&api_token=7ydZeBOwpdTkfuxh81RcwQluHlL2V1sAeNUn6XWlkd5o6lsIWmKFcp3XZ01n&include=localteam,visitorteam,venue
+`;
 
   try {
     const response = await fetch(url, {

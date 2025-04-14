@@ -10,10 +10,13 @@ interface Stat {
 }
 
 interface Bet {
-  title: string;
-  odds: number | string;
+  userId: string;
   amount: number;
+  betTitle: string;
   selectedTeam: 'pink' | 'blue';
+  odds: number | string;
+  won: boolean;
+  creditedTo: 'admin' | 'member';
 }
 
 const statsData: Stat[] = [
@@ -39,25 +42,50 @@ const statsData: Stat[] = [
   { title: "Most Ducks by Team", pink: 47, blue: 54, total: "" },
   { title: "Total Runout's in IPL", pink: 84, blue: 90, total: "" },
 ];
+
 const IPLStatsPage: React.FC = () => {
   const [showDialog, setShowDialog] = useState<boolean>(false);
   const [selectedBet, setSelectedBet] = useState<Stat | null>(null);
   const [selectedTeam, setSelectedTeam] = useState<'pink' | 'blue'>('pink');
   const [amount, setAmount] = useState<number>(0);
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handlePlaceBet = (): void => {
+  const handlePlaceBet = async (): Promise<void> => {
     if (selectedBet && amount > 0) {
-      const betData: Bet = {
-        title: selectedBet.title,
-        odds: selectedTeam === 'pink' ? selectedBet.pink : selectedBet.blue,
-        amount,
-        selectedTeam
-      };
-      console.log("Placed bet:", betData);
-      resetBetState();
-      setShowConfirmation(true);
-      setTimeout(() => setShowConfirmation(false), 3000);
+      try {
+        const betData: Bet = {
+          userId: "current_user_id", // You should replace this with actual user ID from your auth system
+          amount,
+          betTitle: selectedBet.title,
+          selectedTeam,
+          odds: selectedTeam === 'pink' ? selectedBet.pink : selectedBet.blue,
+          won: false, // Initially set to false, can be updated later
+          creditedTo: "admin" // Or "member" based on your logic
+        };
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/bet/place`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(betData),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to place bet');
+        }
+
+        console.log("Bet placed successfully");
+        resetBetState();
+        setShowConfirmation(true);
+        setTimeout(() => setShowConfirmation(false), 3000);
+      } catch (err) {
+        console.error("Error placing bet:", err);
+       
+        setTimeout(() => setError(null), 3000);
+      }
     }
   };
 
@@ -66,6 +94,7 @@ const IPLStatsPage: React.FC = () => {
     setSelectedTeam(team);
     setAmount(0); // Reset amount when opening new bet
     setShowDialog(true);
+    setError(null); // Clear any previous errors
   };
 
   const resetBetState = () => {
@@ -152,6 +181,13 @@ const IPLStatsPage: React.FC = () => {
 
             <p className="text-xs text-gray-700">Range: 100 to 2L</p>
 
+            {/* Error message */}
+            {error && (
+              <div className="text-red-600 text-sm text-center">
+                {error}
+              </div>
+            )}
+
             {/* Actions */}
             <div className="flex justify-between items-center">
               <button
@@ -176,6 +212,13 @@ const IPLStatsPage: React.FC = () => {
       {showConfirmation && (
         <div className="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-xl shadow-lg z-50 transition-all duration-300">
           🎉 Bet placed successfully!
+        </div>
+      )}
+
+      {/* Error Popup */}
+      {error && (
+        <div className="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-6 py-3 rounded-xl shadow-lg z-50 transition-all duration-300">
+          {error}
         </div>
       )}
     </div>
