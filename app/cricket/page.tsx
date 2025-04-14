@@ -385,7 +385,7 @@ const IPLMatches = () => {
                           className="text-xs bg-red-500/80 hover:bg-red-500 text-white px-3 py-1 rounded-full transition-colors shadow-sm mr-2"
                           onClick={(e) => {
                             e.stopPropagation(); // Prevent card click navigation
-                            router.push(`/matches/${match.id}/live`); // Adjust route as needed
+                            router.push(`/live/${match.id}`); // Adjust route as needed
                           }}
                         >
                           Live Score
