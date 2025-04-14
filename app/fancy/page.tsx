@@ -17,15 +17,16 @@ interface Bet {
 }
 
 const statsData: Stat[] = [
-  { title: "Lowest inning Runs IPL", pink: 109, blue: 144, total: "116" },
-  { title: "Tournament topBatsman Runs in IPL", pink: 125, blue: 130, total: "140 abhishek" },
-  { title: "Highest Runs Scorer", pink: 730, blue: 765, total: "288 nicolas Pooran" },
-  { title: "Highest Partnership Runs in IPL", pink: 166, blue: 174, total: "5 (Matches Played :- 24)" },
+  { title: "Lowest inning Runs IPL", pink: 100, blue: 144, total: "" },
+  { title: "Highest inning Runs IPL", pink: 240, blue: 260, total: "" },
+  { title: "Tournament topBatsman Runs in IPL", pink: 140, blue: 150, total: "" },
+  { title: "Highest Runs Scorer", pink: 730, blue: 765, total: "" },
+  { title: "Highest Partnership Runs in IPL", pink: 166, blue: 174, total: "" },
   { title: "Highest Wicket Taker IPL", pink: 48, blue: 53, total: "" },
   { title: "How many times 5 or More wickets taken by a Bowler", pink: 84, blue: 90, total: "" },
   { title: "Fastest 50 of IPL", pink: 15, blue: 17, total: "" },
-  { title: "Total 4's in IPL", pink: 2215, blue: 2255, total: "0 (Matches Played :- 24)" },
-  { title: "Total 6's in IPL", pink: 1300, blue: 1345, total: "0 (Matches Played :- 24)" },
+  { title: "Total 4's in IPL", pink: 2215, blue: 2255, total: "" },
+  { title: "Total 6's in IPL", pink: 1300, blue: 1345, total: "" },
   { title: "Total 30's in IPL", pink: 190, blue: 196, total: "" },
   { title: "Total 50s in IPL", pink: 146, blue: 153, total: "" },
   { title: "Total 100s in IPL", pink: 9, blue: 16, total: "" },
