@@ -1,8 +1,11 @@
+// @/components/RunsOptionCard.tsx - CORRECTED CODE
+
 "use client";
 
 import React, { useState } from "react";
 
-interface Option {
+// --- FIX: Add the 'export' keyword here ---
+export interface Option {
   label: string;
   noOdds: number;
   yesOdds: number;
@@ -10,10 +13,11 @@ interface Option {
 
 interface RunsOptionsCardProps {
   heading: string;
-  options: Option[];
+  options: Option[]; // This can now use the exported Option type
 }
 
 const RunsOptionsCard: React.FC<RunsOptionsCardProps> = ({ heading, options }) => {
+  // ... (rest of your component code remains the same) ...
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [selectedChoice, setSelectedChoice] = useState<"Yes" | "No" | "">("");
   const [selectedOdds, setSelectedOdds] = useState<number | null>(null);
@@ -148,4 +152,4 @@ const RunsOptionsCard: React.FC<RunsOptionsCardProps> = ({ heading, options }) =
   );
 };
 
-export default RunsOptionsCard;
+export default RunsOptionsCard; // Component remains default export
