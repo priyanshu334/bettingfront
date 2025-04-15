@@ -3,9 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
-  const fixtureId = context.params.id; // Accessing id from context.params
+  const fixtureId = params.id; // Accessing id from params
   const apiToken = process.env.SPORTMONKS_API_KEY;
 
   // Checking if the API token exists
