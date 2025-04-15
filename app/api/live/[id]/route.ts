@@ -1,9 +1,8 @@
-// app/api/live/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  context: { params: { id: string } }
+  context: { params: any }
 ) {
   const fixtureId = context.params.id;
   const apiToken = process.env.SPORTMONKS_API_KEY;
