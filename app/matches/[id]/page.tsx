@@ -75,10 +75,6 @@ interface Match {
   lineup?: Player[]; // The *processed* lineup (playing XI only) stored in state
 }
 
-// --- Specific Display Data Types for Child Cards ---
-// These define the exact shape of data expected by each respective card component.
-
-// Type for data expected by PlayerRunsCard
 interface PlayerRunsDisplayData {
   name: string;
   runs: number;
@@ -106,11 +102,9 @@ interface BowlerRunsDisplayData {
     buttons: string[];
 }
 
-// ========================================================================
-// CONSTANTS
-// ========================================================================
 
-// Define player roles based on API data (ensure these match your API's position names)
+
+
 const battingRoles = ['Batsman', 'Wicketkeeper', 'Allrounder', 'Batting Allrounder'];
 const bowlingRoles = ['Bowler', 'Allrounder', 'Batting Allrounder']; // Batting Allrounders can bowl
 
