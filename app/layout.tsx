@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BetChamp",
+  title: "SamaratOnlineBooking",
   description: "Predict, play and win rewards!",
 };
 
