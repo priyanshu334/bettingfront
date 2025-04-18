@@ -5,7 +5,6 @@ import React, { useState } from "react";
 interface Player {
   name: string;
   runsConceded: number;
-  buttons: string[]; // odds
 }
 
 interface BowlerRunsCardProps {
@@ -18,9 +17,9 @@ const BowlerRunsCard: React.FC<BowlerRunsCardProps> = ({ heading, players }) => 
   const [selectedOdds, setSelectedOdds] = useState<string | null>(null);
   const [amount, setAmount] = useState<number>(100);
 
-  const handleOddsClick = (playerName: string, odds: string) => {
+  const handleBetClick = (playerName: string) => {
     setSelectedPlayer(playerName);
-    setSelectedOdds(odds.replace(/^:/, ""));
+    setSelectedOdds("1.0"); // Fixed odds
   };
 
   const closeModal = () => {
@@ -48,7 +47,7 @@ const BowlerRunsCard: React.FC<BowlerRunsCardProps> = ({ heading, players }) => 
         <div className="grid grid-cols-4 text-center text-sm font-semibold border-b border-gray-300">
           <div className="text-left px-4 py-2 col-span-2 bg-gray-50">Bowler</div>
           <div className="bg-red-500 text-white py-2">Runs</div>
-          <div className="bg-blue-500 text-white py-2">Odds</div>
+          <div className="bg-blue-500 text-white py-2">Bet</div>
         </div>
 
         {/* Table Rows */}
@@ -67,17 +66,14 @@ const BowlerRunsCard: React.FC<BowlerRunsCardProps> = ({ heading, players }) => 
               {player.runsConceded}
             </div>
 
-            {/* Odds */}
-            <div className="py-3 bg-blue-50 flex flex-wrap justify-center gap-2 px-2">
-              {player.buttons.map((btn, i) => (
-                <button
-                  key={i}
-                  onClick={() => handleOddsClick(player.name, btn)}
-                  className="bg-blue-100 hover:bg-blue-200 text-blue-700 text-sm px-3 py-1 rounded-full font-medium transition"
-                >
-                  {btn.replace(/^:/, "")}
-                </button>
-              ))}
+            {/* Bet (fixed 100) */}
+            <div className="py-3 bg-blue-50">
+              <button
+                onClick={() => handleBetClick(player.name)}
+                className="bg-blue-100 hover:bg-blue-200 text-blue-700 text-sm px-4 py-1 rounded-full font-medium transition"
+              >
+                100
+              </button>
             </div>
           </div>
         ))}

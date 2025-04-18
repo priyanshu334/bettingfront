@@ -66,6 +66,12 @@ interface FixtureData {
   bowling: Bowling[];
   runs: Runs[];
   winner_team_id?: number;
+  lineup?: {
+    id: number;
+    fullname: string;
+    image_path: string;
+    team_id: number;
+  }[];
 }
 
 export default function LiveScorecard() {
@@ -90,30 +96,6 @@ export default function LiveScorecard() {
     } catch (error) {
       console.error("Error formatting date:", error);
       return dateString;
-    }
-  };
-
-  const fetchPlayers = async (teamIds: number[]) => {
-    try {
-      const playersMap: Record<number, Player> = {};
-      
-      // Fetch players for each team
-      for (const teamId of teamIds) {
-        const response = await fetch(`/api/players/${teamId}`);
-        if (!response.ok) throw new Error(`Failed to fetch players for team ${teamId}`);
-        
-        const data = await response.json();
-        if (data.data && Array.isArray(data.data)) {
-          data.data.forEach((player: Player) => {
-            playersMap[player.id] = player;
-          });
-        }
-      }
-      
-      setPlayers(playersMap);
-    } catch (err) {
-      console.error("Error fetching players:", err);
-      // We can continue even if player fetch fails - we'll fall back to player IDs
     }
   };
 
@@ -144,7 +126,20 @@ export default function LiveScorecard() {
         throw new Error("Incomplete core data in API response");
       }
 
-      // Process the data
+      // Process lineup data to create players map
+      const playersMap: Record<number, Player> = {};
+      if (data.data.lineup && Array.isArray(data.data.lineup)) {
+        data.data.lineup.forEach((playerData: any) => {
+          playersMap[playerData.id] = {
+            id: playerData.id,
+            name: playerData.fullname,
+            image_path: playerData.image_path
+          };
+        });
+      }
+      setPlayers(playersMap);
+
+      // Process the match data
       const processedData: FixtureData = {
         id: data.data.id,
         localteam: data.data.localteam,
@@ -157,24 +152,19 @@ export default function LiveScorecard() {
         batting: data.data.batting || [],
         bowling: data.data.bowling || [],
         runs: data.data.runs || [],
-        winner_team_id: data.data.winner_team_id
+        winner_team_id: data.data.winner_team_id,
+        lineup: data.data.lineup
       };
 
-      // Fetch player details if we have new teams
-      if (isInitialLoad) {
-        const teamIds = [processedData.localteam.id, processedData.visitorteam.id];
-        await fetchPlayers(teamIds);
-      }
-
-      // Enhance player names in batting and bowling data with the players we have
+      // Enhance player names in batting and bowling data
       processedData.batting = processedData.batting.map(batter => ({
         ...batter,
-        player_name: players[batter.player_id]?.name || batter.player_name || `Player ${batter.player_id}`
+        player_name: playersMap[batter.player_id]?.name || batter.player_name || `Player ${batter.player_id}`
       }));
       
       processedData.bowling = processedData.bowling.map(bowler => ({
         ...bowler,
-        player_name: players[bowler.player_id]?.name || bowler.player_name || `Player ${bowler.player_id}`
+        player_name: playersMap[bowler.player_id]?.name || bowler.player_name || `Player ${bowler.player_id}`
       }));
 
       setMatch(processedData);
@@ -212,6 +202,10 @@ export default function LiveScorecard() {
 
   const getPlayerName = (playerId: number, defaultName?: string) => {
     return players[playerId]?.name || defaultName || `Player ${playerId}`;
+  };
+
+  const getPlayerImage = (playerId: number) => {
+    return players[playerId]?.image_path || '/placeholder.png';
   };
 
   if (loading) {
@@ -370,11 +364,11 @@ export default function LiveScorecard() {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {localTeamBatters.length > 0 ? localTeamBatters.map((batter) => (
-                    <tr key={`bat-${batter.id}-${batter.player_id}`} className={batter.active ? "bg-blue-50 font-medium" : ""}>
+                    <tr key={`bat-${batter.player_id}-${batter.id}`} className={batter.active ? "bg-blue-50 font-medium" : ""}>
                       <td className="px-2 py-1 whitespace-nowrap text-left flex items-center">
                         {batter.active && <span className="inline-block w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5 flex-shrink-0"></span>}
                         <span className="truncate">
-                          {batter.player_name}
+                          {getPlayerName(batter.player_id, batter.player_name)}
                         </span>
                       </td>
                       <td className="px-2 py-1 whitespace-nowrap text-right">{batter.score}</td>
@@ -406,11 +400,11 @@ export default function LiveScorecard() {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {visitorTeamBowlers.length > 0 ? visitorTeamBowlers.map((bowler) => (
-                    <tr key={`bowl-${bowler.id}-${bowler.player_id}`} className={bowler.active ? "bg-blue-50 font-medium" : ""}>
+                    <tr key={`bowl-${bowler.player_id}-${bowler.id}`} className={bowler.active ? "bg-blue-50 font-medium" : ""}>
                       <td className="px-2 py-1 whitespace-nowrap text-left flex items-center">
                         {bowler.active && <span className="inline-block w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5 flex-shrink-0"></span>}
                         <span className="truncate">
-                          {bowler.player_name}
+                          {getPlayerName(bowler.player_id, bowler.player_name)}
                         </span>
                       </td>
                       <td className="px-2 py-1 whitespace-nowrap text-right">{bowler.overs}</td>
@@ -445,11 +439,11 @@ export default function LiveScorecard() {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {visitorTeamBatters.length > 0 ? visitorTeamBatters.map((batter) => (
-                    <tr key={`bat-${batter.id}-${batter.player_id}`} className={batter.active ? "bg-blue-50 font-medium" : ""}>
+                    <tr key={`bat-${batter.player_id}-${batter.id}`} className={batter.active ? "bg-blue-50 font-medium" : ""}>
                       <td className="px-2 py-1 whitespace-nowrap text-left flex items-center">
                         {batter.active && <span className="inline-block w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5 flex-shrink-0"></span>}
                         <span className="truncate">
-                          {batter.player_name}
+                          {getPlayerName(batter.player_id, batter.player_name)}
                         </span>
                       </td>
                       <td className="px-2 py-1 whitespace-nowrap text-right">{batter.score}</td>
@@ -481,11 +475,11 @@ export default function LiveScorecard() {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {localTeamBowlers.length > 0 ? localTeamBowlers.map((bowler) => (
-                    <tr key={`bowl-${bowler.id}-${bowler.player_id}`} className={bowler.active ? "bg-blue-50 font-medium" : ""}>
+                    <tr key={`bowl-${bowler.player_id}-${bowler.id}`} className={bowler.active ? "bg-blue-50 font-medium" : ""}>
                       <td className="px-2 py-1 whitespace-nowrap text-left flex items-center">
                         {bowler.active && <span className="inline-block w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5 flex-shrink-0"></span>}
                         <span className="truncate">
-                          {bowler.player_name}
+                          {getPlayerName(bowler.player_id, bowler.player_name)}
                         </span>
                       </td>
                       <td className="px-2 py-1 whitespace-nowrap text-right">{bowler.overs}</td>
