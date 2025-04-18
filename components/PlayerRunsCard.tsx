@@ -5,7 +5,6 @@ import React, { useState } from "react";
 interface Player {
   name: string;
   runs: number;
-  buttons: string[];
 }
 
 interface PlayerRunsCardProps {
@@ -15,23 +14,19 @@ interface PlayerRunsCardProps {
 
 const PlayerRunsCard: React.FC<PlayerRunsCardProps> = ({ heading, players }) => {
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null);
-  const [selectedOdds, setSelectedOdds] = useState<string>("");
   const [amount, setAmount] = useState<number>(100);
 
-  const handleOddsClick = (playerName: string, odds: string) => {
-    const cleanOdds = odds.replace(/^:/, "");
+  const openBetModal = (playerName: string) => {
     setSelectedPlayer(playerName);
-    setSelectedOdds(cleanOdds);
   };
 
   const closeModal = () => {
     setSelectedPlayer(null);
     setAmount(100);
-    setSelectedOdds("");
   };
 
   const handlePlaceBet = () => {
-    console.log(`Placed bet on ${selectedPlayer} with odds ${selectedOdds} and amount ${amount}`);
+    console.log(`Placed bet on ${selectedPlayer} with odds 100 and amount ${amount}`);
     closeModal();
   };
 
@@ -47,7 +42,7 @@ const PlayerRunsCard: React.FC<PlayerRunsCardProps> = ({ heading, players }) => 
         <div className="grid grid-cols-2 md:grid-cols-3 text-sm font-semibold border-b border-gray-300 text-center">
           <div className="text-left px-4 py-2 bg-gray-50 col-span-1">Player</div>
           <div className="bg-yellow-500 text-white py-2 hidden md:block">Runs</div>
-          <div className="bg-gray-100 py-2">Odds</div>
+          <div className="bg-gray-100 py-2">Bet</div>
         </div>
 
         {/* Player Rows */}
@@ -60,16 +55,13 @@ const PlayerRunsCard: React.FC<PlayerRunsCardProps> = ({ heading, players }) => 
             <div className="py-3 hidden md:block text-yellow-700 font-semibold">
               {player.runs}
             </div>
-            <div className="flex flex-wrap gap-2 justify-center px-4 py-3">
-              {player.buttons.map((btn, i) => (
-                <button
-                  key={i}
-                  onClick={() => handleOddsClick(player.name, btn)}
-                  className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold hover:bg-blue-200 hover:text-blue-800 transition"
-                >
-                  {btn.replace(/^:/, "")}
-                </button>
-              ))}
+            <div className="py-3">
+              <button
+                onClick={() => openBetModal(player.name)}
+                className="bg-blue-100 text-blue-700 px-4 py-1 rounded-full text-sm font-semibold hover:bg-blue-200 transition"
+              >
+                100
+              </button>
             </div>
           </div>
         ))}
@@ -90,7 +82,7 @@ const PlayerRunsCard: React.FC<PlayerRunsCardProps> = ({ heading, players }) => 
               Player: <span className="font-medium">{selectedPlayer}</span>
             </div>
             <div className="text-sm text-gray-700 mb-4">
-              Odds: <span className="font-medium">{selectedOdds}</span>
+              Odds: <span className="font-medium">100</span>
             </div>
 
             <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
