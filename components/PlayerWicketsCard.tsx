@@ -1,23 +1,41 @@
 "use client";
 
 import React, { useState } from "react";
+import { toast } from "sonner";
 
 interface Player {
   name: string;
   wickets: number;
+  id?: number;
+  teamName?: string;
 }
 
 interface PlayerWicketsCardProps {
   heading: string;
   players: Player[];
+  matchId: number;
+  userId: string;
 }
 
-const PlayerWicketsCard: React.FC<PlayerWicketsCardProps> = ({ heading, players }) => {
-  const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null);
-  const [amount, setAmount] = useState<number>(100);
+interface BetResponse {
+  message: string;
+  newBalance?: number;
+  error?: string;
+  bet?: any;
+}
 
-  const openBetModal = (playerName: string) => {
-    setSelectedPlayer(playerName);
+const PlayerWicketsCard: React.FC<PlayerWicketsCardProps> = ({ 
+  heading, 
+  players, 
+  matchId,
+  userId 
+}) => {
+  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
+  const [amount, setAmount] = useState<number>(100);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+
+  const openBetModal = (player: Player) => {
+    setSelectedPlayer(player);
   };
 
   const closeModal = () => {
@@ -25,9 +43,52 @@ const PlayerWicketsCard: React.FC<PlayerWicketsCardProps> = ({ heading, players 
     setAmount(100);
   };
 
-  const handlePlaceBet = () => {
-    console.log(`Placed bet on ${selectedPlayer} with odds 100 and amount ${amount}`);
-    closeModal();
+  const handlePlaceBet = async () => {
+    if (!selectedPlayer || !userId || !matchId) return;
+
+    setIsProcessing(true);
+
+    try {
+      toast.promise(
+        fetch("/api/bets/wickets", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // Add authorization header if needed
+            // "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            userId,
+            matchId,
+            teamName: selectedPlayer.teamName,
+            playerName: selectedPlayer.name,
+            predictedWickets: selectedPlayer.wickets,
+            betAmount: amount
+          })
+        }).then(async (response) => {
+          const data: BetResponse = await response.json();
+          if (!response.ok) {
+            throw new Error(data.error || "Failed to place bet");
+          }
+          return data;
+        }),
+        {
+          loading: 'Placing your wickets bet...',
+          success: (data) => {
+            closeModal();
+            return `${data.message}. New balance: ₹${data.newBalance}`;
+          },
+          error: (error) => error.message || "Wickets bet placement failed",
+        }
+      );
+    } catch (error) {
+      console.error("Bet Error:", error);
+      toast.error("Bet Failed", {
+        description: error instanceof Error ? error.message : "An unknown error occurred"
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -57,7 +118,7 @@ const PlayerWicketsCard: React.FC<PlayerWicketsCardProps> = ({ heading, players 
             </div>
             <div className="py-3">
               <button
-                onClick={() => openBetModal(player.name)}
+                onClick={() => openBetModal(player)}
                 className="bg-blue-100 text-blue-700 px-4 py-1 rounded-full text-sm font-semibold hover:bg-blue-200 transition"
               >
                 100
@@ -74,15 +135,19 @@ const PlayerWicketsCard: React.FC<PlayerWicketsCardProps> = ({ heading, players 
             <button
               onClick={closeModal}
               className="absolute top-2 right-2 text-lg font-bold text-gray-700 hover:text-red-600"
+              disabled={isProcessing}
             >
               ×
             </button>
-            <h2 className="text-lg font-semibold mb-4 text-center text-red-900">Place Bet</h2>
+            <h2 className="text-lg font-semibold mb-4 text-center text-red-900">Place Wickets Bet</h2>
             <div className="text-sm text-gray-700 mb-2">
-              Player: <span className="font-medium">{selectedPlayer}</span>
+              Player: <span className="font-medium">{selectedPlayer.name}</span>
+            </div>
+            <div className="text-sm text-gray-700 mb-2">
+              Team: <span className="font-medium">{selectedPlayer.teamName || 'N/A'}</span>
             </div>
             <div className="text-sm text-gray-700 mb-4">
-              Odds: <span className="font-medium">100</span>
+              Predicted Wickets: <span className="font-medium">{selectedPlayer.wickets}</span>
             </div>
 
             <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
@@ -93,6 +158,7 @@ const PlayerWicketsCard: React.FC<PlayerWicketsCardProps> = ({ heading, players 
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
               min={100}
               max={200000}
+              disabled={isProcessing}
             />
 
             <div className="grid grid-cols-4 gap-2 mb-4">
@@ -100,7 +166,8 @@ const PlayerWicketsCard: React.FC<PlayerWicketsCardProps> = ({ heading, players 
                 <button
                   key={val}
                   onClick={() => setAmount(amount + val)}
-                  className="bg-orange-300 text-white py-2 rounded font-semibold text-sm hover:bg-orange-400"
+                  className="bg-orange-300 text-white py-2 rounded font-semibold text-sm hover:bg-orange-400 disabled:opacity-50"
+                  disabled={isProcessing}
                 >
                   +{val / 1000}k
                 </button>
@@ -110,13 +177,15 @@ const PlayerWicketsCard: React.FC<PlayerWicketsCardProps> = ({ heading, players 
             <div className="flex justify-between gap-3">
               <button
                 onClick={handlePlaceBet}
-                className="bg-green-600 text-white w-full py-2 rounded hover:bg-green-700 font-semibold"
+                className="bg-green-600 text-white w-full py-2 rounded hover:bg-green-700 font-semibold disabled:opacity-50"
+                disabled={isProcessing}
               >
-                Place Bet
+                {isProcessing ? 'Processing...' : 'Place Bet'}
               </button>
               <button
                 onClick={closeModal}
-                className="bg-red-500 text-white w-full py-2 rounded hover:bg-red-600 font-semibold"
+                className="bg-red-500 text-white w-full py-2 rounded hover:bg-red-600 font-semibold disabled:opacity-50"
+                disabled={isProcessing}
               >
                 Cancel
               </button>

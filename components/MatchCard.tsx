@@ -1,7 +1,11 @@
+"use client";
+
 import React, { useState } from "react";
+import { toast } from "sonner";
 
 type TeamOdds = {
   team: string;
+  teamId: string;
   back: string;
   lay: string;
   stake: string;
@@ -9,6 +13,7 @@ type TeamOdds = {
 
 type BookmakerOdds = {
   team: string;
+  teamId: string;
   back: string;
   lay: string;
   stake: string;
@@ -16,6 +21,7 @@ type BookmakerOdds = {
 
 type TossOdds = {
   team: string;
+  teamId: string;
   back: string;
   lay: string;
   stake: string;
@@ -23,15 +29,25 @@ type TossOdds = {
 
 type WinPrediction = {
   team: string;
+  teamId: string;
   odds: string;
 };
 
-type MatchOddsProps = {
+export type MatchOddsProps = {
   matchOdds: TeamOdds[];
   bookmakerOdds: BookmakerOdds[];
   tossOdds: TossOdds[];
   winPrediction: WinPrediction[];
+  matchId: number;
+  userId: string;
 };
+
+interface BetResponse {
+  message: string;
+  newBalance?: number;
+  error?: string;
+  bet?: any;
+}
 
 const BetDialog: React.FC<{
   title: string;
@@ -39,7 +55,8 @@ const BetDialog: React.FC<{
   oddsValue: string;
   onClose: () => void;
   onPlaceBet: (amount: string) => void;
-}> = ({ title, currentStake, oddsValue, onClose, onPlaceBet }) => {
+  isProcessing: boolean;
+}> = ({ title, currentStake, oddsValue, onClose, onPlaceBet, isProcessing }) => {
   const [amount, setAmount] = useState(currentStake);
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,7 +79,13 @@ const BetDialog: React.FC<{
       <div className="w-full max-w-md rounded overflow-hidden">
         <div className="bg-orange-700 text-white p-4 flex justify-between items-center">
           <h2 className="text-2xl font-bold">Place Bet</h2>
-          <button onClick={onClose} className="text-white text-3xl">&times;</button>
+          <button 
+            onClick={onClose} 
+            className="text-white text-3xl"
+            disabled={isProcessing}
+          >
+            &times;
+          </button>
         </div>
         
         <div className="bg-pink-200 p-4">
@@ -88,36 +111,64 @@ const BetDialog: React.FC<{
                 value={amount}
                 onChange={handleAmountChange}
                 className="w-full p-2 border border-gray-300 rounded"
+                disabled={isProcessing}
               />
             </div>
           </div>
           
           <div className="grid grid-cols-4 gap-1 mb-4">
-            <button onClick={() => handleQuickAmountAdd(1000)} className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded text-lg">+1k</button>
-            <button onClick={() => handleQuickAmountAdd(2000)} className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded text-lg">+2k</button>
-            <button onClick={() => handleQuickAmountAdd(5000)} className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded text-lg">+5k</button>
-            <button onClick={() => handleQuickAmountAdd(10000)} className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded text-lg">+10k</button>
+            {[1000, 2000, 5000, 10000].map((val) => (
+              <button 
+                key={val}
+                onClick={() => handleQuickAmountAdd(val)}
+                className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded text-lg disabled:opacity-50"
+                disabled={isProcessing}
+              >
+                +{val / 1000}k
+              </button>
+            ))}
           </div>
           
           <div className="grid grid-cols-4 gap-1 mb-4">
-            <button onClick={() => handleQuickAmountAdd(20000)} className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded text-lg">+20k</button>
-            <button onClick={() => handleQuickAmountAdd(25000)} className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded text-lg">+25k</button>
-            <button onClick={() => handleQuickAmountAdd(50000)} className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded text-lg">+50k</button>
-            <button onClick={() => handleQuickAmountAdd(75000)} className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded text-lg">+75k</button>
+            {[20000, 25000, 50000, 75000].map((val) => (
+              <button 
+                key={val}
+                onClick={() => handleQuickAmountAdd(val)}
+                className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded text-lg disabled:opacity-50"
+                disabled={isProcessing}
+              >
+                +{val / 1000}k
+              </button>
+            ))}
           </div>
           
           <div className="grid grid-cols-2 gap-1 mb-6">
-            <button onClick={() => handleQuickAmountAdd(90000)} className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded text-lg">+90k</button>
-            <button onClick={() => handleQuickAmountAdd(95000)} className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded text-lg">+95k</button>
+            {[90000, 95000].map((val) => (
+              <button 
+                key={val}
+                onClick={() => handleQuickAmountAdd(val)}
+                className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded text-lg disabled:opacity-50"
+                disabled={isProcessing}
+              >
+                +{val / 1000}k
+              </button>
+            ))}
           </div>
           
           <div className="grid grid-cols-2 gap-1 mb-4">
-            <button onClick={handleClear} className="bg-blue-500 text-white py-3 text-xl font-bold">Clear</button>
+            <button 
+              onClick={handleClear}
+              className="bg-blue-500 text-white py-3 text-xl font-bold disabled:opacity-50"
+              disabled={isProcessing}
+            >
+              Clear
+            </button>
             <button 
               onClick={() => onPlaceBet(amount)}
-              className="bg-green-700 hover:bg-green-800 text-white py-3 text-xl font-bold"
+              className="bg-green-700 hover:bg-green-800 text-white py-3 text-xl font-bold disabled:opacity-50"
+              disabled={isProcessing}
             >
-              Place Bet
+              {isProcessing ? 'Processing...' : 'Place Bet'}
             </button>
           </div>
           
@@ -129,41 +180,84 @@ const BetDialog: React.FC<{
   );
 };
 
-const ConfirmationDialog: React.FC<{
-  message: string;
-  onClose: () => void;
-}> = ({ message, onClose }) => {
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg max-w-sm w-full">
-        <div className="text-xl font-bold mb-4">{message}</div>
-        <button 
-          onClick={onClose}
-          className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded font-bold"
-        >
-          OK
-        </button>
-      </div>
-    </div>
-  );
-};
-
-const MatchOdds: React.FC<MatchOddsProps> = ({ 
+const MatchCard: React.FC<MatchOddsProps> = ({ 
   matchOdds, 
   bookmakerOdds, 
   tossOdds, 
-  winPrediction 
+  winPrediction,
+  matchId,
+  userId
 }) => {
   const [showBetDialog, setShowBetDialog] = useState(false);
-  const [showConfirmation, setShowConfirmation] = useState(false);
-  const [currentBetTitle, setCurrentBetTitle] = useState("");
-  const [currentStake, setCurrentStake] = useState("");
-  const [currentOddsValue, setCurrentOddsValue] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [currentBetData, setCurrentBetData] = useState({
+    title: "",
+    stake: "",
+    odds: "",
+    marketType: "",
+    betType: "",
+    teamId: ""
+  });
 
-  const handlePlaceBet = (amount: string) => {
-    console.log(`Placing bet: ${amount} on ${currentBetTitle} with odds ${currentOddsValue}`);
-    setShowBetDialog(false);
-    setShowConfirmation(true);
+  const handlePlaceBet = async (amount: string) => {
+    if (!userId || !matchId) return;
+    
+    setIsProcessing(true);
+
+    try {
+      const response = await fetch("/api/bets/place", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId,
+          matchId,
+          teamId: currentBetData.teamId,
+          marketType: currentBetData.marketType,
+          betType: currentBetData.betType,
+          odds: parseFloat(currentBetData.odds),
+          amount: parseInt(amount)
+        })
+      });
+
+      const data: BetResponse = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to place bet");
+      }
+
+      toast.success(data.message, {
+        description: `New balance: ₹${data.newBalance}`
+      });
+      setShowBetDialog(false);
+    } catch (error) {
+      console.error("Bet Error:", error);
+      toast.error("Bet Failed", {
+        description: error instanceof Error ? error.message : "An unknown error occurred"
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const openBetDialog = (
+    title: string,
+    stake: string,
+    odds: string,
+    marketType: string,
+    betType: string,
+    teamId: string
+  ) => {
+    setCurrentBetData({
+      title,
+      stake,
+      odds,
+      marketType,
+      betType,
+      teamId
+    });
+    setShowBetDialog(true);
   };
 
   return (
@@ -189,23 +283,27 @@ const MatchOdds: React.FC<MatchOddsProps> = ({
               <div className="col-span-2 py-2 px-3 text-left font-medium">{team.team}</div>
               <div 
                 className="bg-blue-400 py-2 font-semibold cursor-pointer hover:bg-blue-500 transition duration-200"
-                onClick={() => {
-                  setCurrentBetTitle(`Match Odds - ${team.team} (BACK)`);
-                  setCurrentStake(team.stake);
-                  setCurrentOddsValue(team.back);
-                  setShowBetDialog(true);
-                }}
+                onClick={() => openBetDialog(
+                  `Match Odds - ${team.team} (BACK)`,
+                  team.stake,
+                  team.back,
+                  "match_odds",
+                  "back",
+                  team.teamId
+                )}
               >
                 {team.back}<br /><span className="text-xs text-gray-700">{team.stake}</span>
               </div>
               <div 
                 className="bg-red-400 py-2 font-semibold cursor-pointer hover:bg-red-500 transition duration-200"
-                onClick={() => {
-                  setCurrentBetTitle(`Match Odds - ${team.team} (LAY)`);
-                  setCurrentStake(team.stake);
-                  setCurrentOddsValue(team.lay);
-                  setShowBetDialog(true);
-                }}
+                onClick={() => openBetDialog(
+                  `Match Odds - ${team.team} (LAY)`,
+                  team.stake,
+                  team.lay,
+                  "match_odds",
+                  "lay",
+                  team.teamId
+                )}
               >
                 {team.lay}<br /><span className="text-xs text-gray-700">{team.stake}</span>
               </div>
@@ -221,36 +319,36 @@ const MatchOdds: React.FC<MatchOddsProps> = ({
             <span className="col-span-2 py-2">Teams</span>
             <span className="py-2">BACK</span>
             <span className="py-2">LAY</span>
-            <span className="py-2">-</span>
-            <span className="py-2">-</span>
           </div>
           {bookmakerOdds.map((team, i) => (
             <div key={i} className="grid grid-cols-4 border-t text-black text-center text-sm">
               <div className="col-span-2 py-2 text-left px-3 font-medium">{team.team}</div>
               <div 
                 className="bg-blue-400 py-2 font-semibold cursor-pointer hover:bg-blue-500 transition duration-200"
-                onClick={() => {
-                  setCurrentBetTitle(`Bookmaker - ${team.team} (BACK)`);
-                  setCurrentStake(team.stake);
-                  setCurrentOddsValue(team.back);
-                  setShowBetDialog(true);
-                }}
+                onClick={() => openBetDialog(
+                  `Bookmaker - ${team.team} (BACK)`,
+                  team.stake,
+                  team.back,
+                  "bookmaker",
+                  "back",
+                  team.teamId
+                )}
               >
                 {team.back}<br /><span className="text-xs text-gray-700">{team.stake}</span>
               </div>
               <div 
                 className="bg-red-400 py-2 font-semibold cursor-pointer hover:bg-red-500 transition duration-200"
-                onClick={() => {
-                  setCurrentBetTitle(`Bookmaker - ${team.team} (LAY)`);
-                  setCurrentStake(team.stake);
-                  setCurrentOddsValue(team.lay);
-                  setShowBetDialog(true);
-                }}
+                onClick={() => openBetDialog(
+                  `Bookmaker - ${team.team} (LAY)`,
+                  team.stake,
+                  team.lay,
+                  "bookmaker",
+                  "lay",
+                  team.teamId
+                )}
               >
                 {team.lay}<br /><span className="text-xs text-gray-700">{team.stake}</span>
               </div>
-              <span className="py-2">-</span>
-              <span className="py-2">-</span>
             </div>
           ))}
         </div>
@@ -263,34 +361,36 @@ const MatchOdds: React.FC<MatchOddsProps> = ({
             <span className="col-span-2 py-2">Teams</span>
             <span className="py-2">BACK</span>
             <span className="py-2">LAY</span>
-            <span className="py-2">-</span>
           </div>
           {tossOdds.map((team, i) => (
             <div key={i} className="grid grid-cols-4 border-t text-center text-sm">
               <div className="col-span-2 py-2 text-left px-3 font-medium">{team.team}</div>
               <div 
                 className="bg-blue-200 py-2 font-semibold cursor-pointer hover:bg-blue-300 transition duration-200"
-                onClick={() => {
-                  setCurrentBetTitle(`Toss - ${team.team} (BACK)`);
-                  setCurrentStake(team.stake);
-                  setCurrentOddsValue(team.back);
-                  setShowBetDialog(true);
-                }}
+                onClick={() => openBetDialog(
+                  `Toss - ${team.team} (BACK)`,
+                  team.stake,
+                  team.back,
+                  "toss",
+                  "back",
+                  team.teamId
+                )}
               >
                 {team.back}<br /><span className="text-xs text-gray-700">{team.stake}</span>
               </div>
               <div 
                 className="bg-red-200 py-2 font-semibold cursor-pointer hover:bg-red-300 transition duration-200"
-                onClick={() => {
-                  setCurrentBetTitle(`Toss - ${team.team} (LAY)`);
-                  setCurrentStake(team.stake);
-                  setCurrentOddsValue(team.lay);
-                  setShowBetDialog(true);
-                }}
+                onClick={() => openBetDialog(
+                  `Toss - ${team.team} (LAY)`,
+                  team.stake,
+                  team.lay,
+                  "toss",
+                  "lay",
+                  team.teamId
+                )}
               >
                 {team.lay}<br /><span className="text-xs text-gray-700">{team.stake}</span>
               </div>
-              <span className="py-2">-</span>
             </div>
           ))}
         </div>
@@ -304,12 +404,14 @@ const MatchOdds: React.FC<MatchOddsProps> = ({
               <div 
                 key={i} 
                 className="bg-blue-200 p-4 rounded shadow-md hover:shadow-lg transition duration-200 cursor-pointer"
-                onClick={() => {
-                  setCurrentBetTitle(`Win Prediction - ${item.team}`);
-                  setCurrentStake("100");
-                  setCurrentOddsValue(item.odds);
-                  setShowBetDialog(true);
-                }}
+                onClick={() => openBetDialog(
+                  `Win Prediction - ${item.team}`,
+                  "100",
+                  item.odds,
+                  "winner",
+                  "back",
+                  item.teamId
+                )}
               >
                 <div className="font-semibold text-sm mb-1">{item.team}</div>
                 <div className="text-2xl font-bold text-blue-800">{item.odds}</div>
@@ -321,19 +423,12 @@ const MatchOdds: React.FC<MatchOddsProps> = ({
         {/* Bet Dialog */}
         {showBetDialog && (
           <BetDialog
-            title={currentBetTitle}
-            currentStake={currentStake}
-            oddsValue={currentOddsValue}
+            title={currentBetData.title}
+            currentStake={currentBetData.stake}
+            oddsValue={currentBetData.odds}
             onClose={() => setShowBetDialog(false)}
             onPlaceBet={handlePlaceBet}
-          />
-        )}
-
-        {/* Confirmation Dialog */}
-        {showConfirmation && (
-          <ConfirmationDialog
-            message="Your bet has been placed successfully!"
-            onClose={() => setShowConfirmation(false)}
+            isProcessing={isProcessing}
           />
         )}
       </div>
@@ -341,4 +436,4 @@ const MatchOdds: React.FC<MatchOddsProps> = ({
   );
 };
 
-export default MatchOdds;
+export default MatchCard;

@@ -16,16 +16,23 @@ const Navbar: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Utility to get token from cookies
+  const getTokenFromCookies = (): string | null => {
+    const cookies = document.cookie.split("; ");
+    const tokenCookie = cookies.find(row => row.startsWith("token="));
+    return tokenCookie ? tokenCookie.split("=")[1] : null;
+  };
+
   useEffect(() => {
     const fetchUserDetails = async () => {
-      const token = localStorage.getItem("token");
+      const token = getTokenFromCookies();
       if (!token) return;
 
       try {
         const decoded: any = JSON.parse(atob(token.split(".")[1]));
         const userId = decoded.userId;
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/${userId}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/${userId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -45,7 +52,6 @@ const Navbar: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Close dropdown when clicking outside
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setDropdownOpen(false);
@@ -59,7 +65,8 @@ const Navbar: React.FC = () => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    // Clear the cookie
+    document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     window.location.href = "/login";
   };
 
@@ -67,7 +74,6 @@ const Navbar: React.FC = () => {
     <nav className="bg-gradient-to-r from-orange-700 to-red-800 p-4 text-white shadow-lg">
       <div className="container mx-auto">
         <div className="flex items-center justify-between">
-          {/* Logo Section */}
           <div className="flex items-center">
             <div className="w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden mr-2 md:mr-3 bg-white flex-shrink-0">
               <Image
@@ -84,7 +90,6 @@ const Navbar: React.FC = () => {
             </Link>
           </div>
 
-          {/* Mobile menu button */}
           <div className="md:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -116,7 +121,6 @@ const Navbar: React.FC = () => {
             </button>
           </div>
 
-          {/* Desktop Right Section */}
           <div className="hidden md:flex items-center space-x-6">
             <Link href="/rules" className="text-lg hover:text-yellow-200 transition-colors">
               Rules
@@ -184,7 +188,6 @@ const Navbar: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile menu */}
         {mobileMenuOpen && (
           <div className="md:hidden mt-4 bg-gradient-to-r from-red-900 to-red-800 rounded-lg p-4 space-y-3">
             <Link 

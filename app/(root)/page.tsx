@@ -43,7 +43,7 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/login`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/login`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ const LoginPage = () => {
       }
 
       toast.success('Login successful! Redirecting...');
-      router.push('/'); // Or your preferred redirect route
+      router.push('/home'); // Or your preferred redirect route
 
     } catch (error) {
       console.error('Login error:', error);
@@ -94,7 +94,7 @@ const LoginPage = () => {
           <div className="w-20 h-20 bg-orange-100 rounded-full mb-4 flex items-center justify-center shadow-md">
             <span className="text-3xl text-orange-600">SE</span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold text-orange-700">Samrat Online Bookingsssss</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-orange-700">Samrat Online Booking</h1>
         </div>
 
         <h2 className="text-lg font-bold text-center mb-6">Login to your account</h2>
