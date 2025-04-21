@@ -16,7 +16,6 @@ const Navbar: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Utility to get token from cookies
   const getTokenFromCookies = (): string | null => {
     const cookies = document.cookie.split("; ");
     const tokenCookie = cookies.find(row => row.startsWith("token="));
@@ -29,8 +28,13 @@ const Navbar: React.FC = () => {
       if (!token) return;
 
       try {
-        const decoded: any = JSON.parse(atob(token.split(".")[1]));
-        const userId = decoded.userId;
+        const base64Url = token.split(".")[1];
+        if (!base64Url) throw new Error("Invalid token format");
+
+        const decodedPayload = JSON.parse(atob(base64Url));
+        const userId = decodedPayload?.userId;
+
+        if (!userId) throw new Error("Invalid userId in token");
 
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/${userId}`, {
           headers: {
@@ -65,7 +69,6 @@ const Navbar: React.FC = () => {
   }, []);
 
   const handleLogout = () => {
-    // Clear the cookie
     document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     window.location.href = "/login";
   };
@@ -92,7 +95,10 @@ const Navbar: React.FC = () => {
 
           <div className="md:hidden">
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              onClick={() => {
+                setMobileMenuOpen(!mobileMenuOpen);
+                setDropdownOpen(false);
+              }}
               className="text-white focus:outline-none"
             >
               <svg
@@ -103,19 +109,9 @@ const Navbar: React.FC = () => {
                 xmlns="http://www.w3.org/2000/svg"
               >
                 {mobileMenuOpen ? (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 ) : (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 )}
               </svg>
             </button>
@@ -142,38 +138,21 @@ const Navbar: React.FC = () => {
                   viewBox="0 0 24 24"
                   xmlns="http://www.w3.org/2000/svg"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white bg-opacity-95 backdrop-blur-sm text-black rounded-lg shadow-xl z-100 overflow-hidden border border-gray-200">
-                  <Link 
-                    href="/accounts" 
-                    className="block px-4 py-2 hover:bg-gray-200 transition-colors"
-                  >
+                  <Link href="/accounts" className="block px-4 py-2 hover:bg-gray-200 transition-colors">
                     Account Statement
                   </Link>
-                  <Link 
-                    href="/betHistory" 
-                    className="block px-4 py-2 hover:bg-gray-200 transition-colors"
-                  >
+                  <Link href="/betHistory" className="block px-4 py-2 hover:bg-gray-200 transition-colors">
                     Bet History
                   </Link>
-                  <Link 
-                    href="/rules" 
-                    className="block px-4 py-2 hover:bg-gray-200 transition-colors"
-                  >
+                  <Link href="/rules" className="block px-4 py-2 hover:bg-gray-200 transition-colors">
                     Rules
                   </Link>
-                  <Link 
-                    href="/changePassword" 
-                    className="block px-4 py-2 text-red-500 hover:bg-gray-200 transition-colors"
-                  >
+                  <Link href="/changePassword" className="block px-4 py-2 text-red-500 hover:bg-gray-200 transition-colors">
                     Change Password
                   </Link>
                   <button
@@ -190,11 +169,7 @@ const Navbar: React.FC = () => {
 
         {mobileMenuOpen && (
           <div className="md:hidden mt-4 bg-gradient-to-r from-red-900 to-red-800 rounded-lg p-4 space-y-3">
-            <Link 
-              href="/rules" 
-              className="block text-lg hover:text-yellow-200 transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
+            <Link href="/rules" className="block text-lg hover:text-yellow-200 transition-colors" onClick={() => setMobileMenuOpen(false)}>
               Rules
             </Link>
             <div className="flex justify-between items-center py-2 border-t border-red-700">
@@ -205,31 +180,16 @@ const Navbar: React.FC = () => {
               <p className="text-sm">Exposure:</p>
               <p className="text-sm font-bold">₹000.00</p>
             </div>
-            <Link 
-              href="/accounts" 
-              className="block py-2 hover:text-yellow-200 transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
+            <Link href="/accounts" className="block py-2 hover:text-yellow-200 transition-colors" onClick={() => setMobileMenuOpen(false)}>
               Account Statement
             </Link>
-            <Link 
-              href="/betHistory" 
-              className="block py-2 hover:text-yellow-200 transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
+            <Link href="/betHistory" className="block py-2 hover:text-yellow-200 transition-colors" onClick={() => setMobileMenuOpen(false)}>
               Bet History
             </Link>
-            <Link 
-              href="/changePassword" 
-              className="block py-2 text-red-300 hover:text-red-100 transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
+            <Link href="/changePassword" className="block py-2 text-red-300 hover:text-red-100 transition-colors" onClick={() => setMobileMenuOpen(false)}>
               Change Password
             </Link>
-            <button
-              onClick={handleLogout}
-              className="w-full text-left py-2 text-blue-300 hover:text-blue-100 transition-colors"
-            >
+            <button onClick={handleLogout} className="w-full text-left py-2 text-blue-300 hover:text-blue-100 transition-colors">
               Signout
             </button>
           </div>
