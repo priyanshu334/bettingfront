@@ -31,7 +31,7 @@ const LoginPage = () => {
       'Path=/',
       'SameSite=Lax',
       'Secure',
-      process.env.NODE_ENV === 'production' ? 'HttpOnly' : '',
+      process.env.NODE_ENV === 'production' ? 'HttpsOnly' : '',
       remember ? `Max-Age=${30 * 24 * 60 * 60}` : '' // 30 days if remember me is checked
     ].filter(Boolean).join('; ');
     
