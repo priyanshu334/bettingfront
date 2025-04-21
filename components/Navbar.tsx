@@ -16,15 +16,13 @@ const Navbar: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const getTokenFromCookies = (): string | null => {
-    const cookies = document.cookie.split("; ");
-    const tokenCookie = cookies.find(row => row.startsWith("token="));
-    return tokenCookie ? tokenCookie.split("=")[1] : null;
+  const getTokenFromStorage = (): string | null => {
+    return localStorage.getItem('authToken');
   };
 
   useEffect(() => {
     const fetchUserDetails = async () => {
-      const token = getTokenFromCookies();
+      const token = getTokenFromStorage();
       if (!token) return;
 
       try {
@@ -49,6 +47,8 @@ const Navbar: React.FC = () => {
       } catch (err) {
         console.error("User fetch error:", err);
         setUser(null);
+        // Clear invalid token
+        localStorage.removeItem('authToken');
       }
     };
 
@@ -69,7 +69,9 @@ const Navbar: React.FC = () => {
   }, []);
 
   const handleLogout = () => {
-    document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    // Clear both localStorage and sessionStorage
+    localStorage.removeItem('authToken');
+    sessionStorage.removeItem('user');
     window.location.href = "/login";
   };
 
