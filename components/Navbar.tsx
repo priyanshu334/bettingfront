@@ -33,6 +33,7 @@ const Navbar: React.FC = () => {
         const userId = decodedPayload?.userId;
 
         if (!userId) throw new Error("Invalid userId in token");
+        console.log("user id is ",userId)
 
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/${userId}`, {
           headers: {

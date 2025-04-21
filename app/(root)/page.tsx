@@ -51,6 +51,7 @@ const LoginPage = () => {
 
       // Store token in localStorage
       localStorage.setItem('authToken', data.token);
+      
 
       // Store user data (excluding sensitive info) in session storage
       if (data.user) {
@@ -63,7 +64,8 @@ const LoginPage = () => {
       }
 
       toast.success('Login successful! Redirecting...');
-      router.push('/home'); // Or your preferred redirect route
+      console.log(data);
+   
 
     } catch (error) {
       console.error('Login error:', error);
