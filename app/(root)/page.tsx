@@ -63,6 +63,13 @@ const LoginPage = () => {
         }));
       }
 
+      const getTokenFromStorage = (): string | null => {
+        return localStorage.getItem('authToken');
+      };
+
+      const token = getTokenFromStorage();
+      console.log(token)
+
       toast.success('Login successful! Redirecting...');
       console.log(data);
    
