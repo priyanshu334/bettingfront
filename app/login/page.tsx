@@ -30,7 +30,7 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/login`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/login`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

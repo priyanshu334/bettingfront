@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useRouter } from 'next/navigation';
-import { toast } from 'sonner'; // or your preferred toast library
+import { toast } from 'sonner';
 
 const LoginPage = () => {
   const router = useRouter();
@@ -25,19 +25,6 @@ const LoginPage = () => {
     }));
   };
 
-  const setAuthCookie = (token: string, remember: boolean) => {
-    const cookieOptions = [
-      `token=${token}`,
-      'Path=/',
-      'SameSite=Lax',
-      'Secure',
-      process.env.NODE_ENV === 'production' ? 'HttpOnly' : '',
-      remember ? `Max-Age=${30 * 24 * 60 * 60}` : '' // 30 days if remember me is checked
-    ].filter(Boolean).join('; ');
-    
-    document.cookie = cookieOptions;
-  };
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -49,7 +36,6 @@ const LoginPage = () => {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        credentials: 'include', // Important for httpOnly cookies
         body: JSON.stringify(formData),
       });
 
@@ -63,10 +49,14 @@ const LoginPage = () => {
         throw new Error('Authentication token not received');
       }
 
-      // Set cookie with secure options
-      setAuthCookie(data.token, rememberMe);
+      // Save token in storage
+      if (rememberMe) {
+        localStorage.setItem('authToken', data.token);
+      } else {
+        sessionStorage.setItem('authToken', data.token);
+      }
 
-      // Store user data (excluding sensitive info) in session storage
+      // Save user info (excluding sensitive data)
       if (data.user) {
         sessionStorage.setItem('user', JSON.stringify({
           id: data.user.id,
@@ -77,8 +67,8 @@ const LoginPage = () => {
       }
 
       toast.success('Login successful! Redirecting...');
-      router.push('/home'); // Or your preferred redirect route
-
+      router.push('/');
+      
     } catch (error) {
       console.error('Login error:', error);
       toast.error(error instanceof Error ? error.message : 'An unexpected error occurred');
@@ -94,7 +84,7 @@ const LoginPage = () => {
           <div className="w-20 h-20 bg-orange-100 rounded-full mb-4 flex items-center justify-center shadow-md">
             <span className="text-3xl text-orange-600">SE</span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold text-orange-700">Samrat Online Booking</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-orange-700">Samrat Online Bookingsssss</h1>
         </div>
 
         <h2 className="text-lg font-bold text-center mb-6">Login to your account</h2>
