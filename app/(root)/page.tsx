@@ -25,19 +25,6 @@ const LoginPage = () => {
     }));
   };
 
-  const setAuthCookie = (token: string, remember: boolean) => {
-    const cookieOptions = [
-      `token=${token}`,
-      'Path=/',
-      'SameSite=Lax',
-      'Secure',
-      process.env.NODE_ENV === 'production' ? 'HttpOnly' : '',
-      remember ? `Max-Age=${30 * 24 * 60 * 60}` : '' // 30 days if remember me is checked
-    ].filter(Boolean).join('; ');
-    
-    document.cookie = cookieOptions;
-  };
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -49,7 +36,6 @@ const LoginPage = () => {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        credentials: 'include', // Important for httpOnly cookies
         body: JSON.stringify(formData),
       });
 
@@ -63,8 +49,8 @@ const LoginPage = () => {
         throw new Error('Authentication token not received');
       }
 
-      // Set cookie with secure options
-      setAuthCookie(data.token, rememberMe);
+      // Store token in localStorage
+      localStorage.setItem('authToken', data.token);
 
       // Store user data (excluding sensitive info) in session storage
       if (data.user) {
