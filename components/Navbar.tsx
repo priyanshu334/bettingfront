@@ -17,44 +17,89 @@ const Navbar: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const getTokenFromStorage = (): string | null => {
-    return localStorage.getItem('authToken');
+    try {
+      const token = localStorage.getItem('authToken');
+      console.debug('[Navbar] Token from storage:', token ? 'exists' : 'not found');
+      return token;
+    } catch (error) {
+      console.error('[Navbar] Error accessing localStorage:', error);
+      return null;
+    }
   };
 
   useEffect(() => {
+    console.log('[Navbar] Component mounted, starting user fetch process');
+    
     const fetchUserDetails = async () => {
+      console.log('[Navbar] Starting fetchUserDetails');
+      
       const token = getTokenFromStorage();
-      if (!token) return;
+      if (!token) {
+        console.log('[Navbar] No token found, skipping user fetch');
+        return;
+      }
 
       try {
-        const base64Url = token.split(".")[1];
-        if (!base64Url) throw new Error("Invalid token format");
+        console.log('[Navbar] Token found, decoding payload');
+        
+        // Split the token into parts
+        const parts = token.split(".");
+        if (parts.length !== 3) {
+          throw new Error("Invalid token format - expected 3 parts");
+        }
 
-        const decodedPayload = JSON.parse(atob(base64Url));
+        const base64Url = parts[1];
+        console.log('[Navbar] Base64Url payload:', base64Url);
+
+        // Replace URL-safe characters and add padding if needed
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const paddedBase64 = base64.padEnd(base64.length + (4 - (base64.length % 4)) % 4, '=');
+        
+        console.log('[Navbar] Decoded base64:', paddedBase64);
+        
+        const decodedPayload = JSON.parse(atob(paddedBase64));
+        console.log('[Navbar] Decoded payload:', decodedPayload);
+        
         const userId = decodedPayload?.userId;
+        if (!userId) {
+          throw new Error("userId not found in token payload");
+        }
 
-        if (!userId) throw new Error("Invalid userId in token");
-        console.log("user id is ",userId)
-
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/${userId}`, {
+        console.log('[Navbar] User ID from token:', userId);
+        
+        const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/user/${userId}`;
+        console.log('[Navbar] Fetching user from:', apiUrl);
+        
+        const res = await fetch(apiUrl, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        if (!res.ok) throw new Error("Failed to fetch user");
+        console.log('[Navbar] Response status:', res.status);
+        
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          console.error('[Navbar] Error response data:', errorData);
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
 
         const data = await res.json();
+        console.log('[Navbar] User data received:', data);
+        
         setUser(data);
       } catch (err) {
-        console.error("User fetch error:", err);
+        console.error('[Navbar] Error in fetchUserDetails:', err);
         setUser(null);
         // Clear invalid token
         localStorage.removeItem('authToken');
+        sessionStorage.removeItem('user');
       }
     };
 
     fetchUserDetails();
   }, []);
+
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -77,7 +122,7 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="bg-gradient-to-r from-orange-700 to-red-800 p-4 text-white shadow-lg">
+    <nav className="bg-gradient-to-r from-orange-500 to-red-800 p-4 text-white shadow-lg">
       <div className="container mx-auto">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
